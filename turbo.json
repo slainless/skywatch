@@ -13,6 +13,10 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "//#flint": {},
+    "//#flint:fix": {
+      "cache": false
     }
   }
 }

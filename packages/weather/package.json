@@ -1,0 +1,9 @@
+{
+  "name": "@deweazer/weather",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^2.1.2"
+  }
+}

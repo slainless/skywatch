@@ -5,10 +5,11 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "flint": "biome check .",
+    "flint:fix": "biome check . --write"
   },
   "devDependencies": {
-    "prettier": "^3.2.5",
+    "@biomejs/biome": "^1.9.3",
     "turbo": "^2.1.3",
     "typescript": "^5.4.5"
   },
@@ -19,5 +20,8 @@
   "workspaces": [
     "apps/*",
     "packages/*"
+  ],
+  "trustedDependencies": [
+    "@biomejs/biome"
   ]
 }
