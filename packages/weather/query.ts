@@ -1,8 +1,4 @@
-export interface Point3D {
-	lat: number;
-	long: number;
-	alt?: number;
-}
+import type { Point3D } from "./weather.js";
 
 export type QueryLocation = Point3D;
 

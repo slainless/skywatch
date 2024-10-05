@@ -12,6 +12,8 @@ export type {
 	Samples,
 	SamplesWithUnit,
 	WeatherData,
+	ComposableWeatherData,
+	Point3D,
 	WMOCode,
 } from "./weather.js";
 export {

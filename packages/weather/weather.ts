@@ -1,4 +1,8 @@
-import type { ConditionalExcept } from "type-fest";
+export interface Point3D {
+	latitude: number;
+	longitude: number;
+	altitude?: number;
+}
 
 export namespace WMOCode {
 	export enum WorldWide {
@@ -111,12 +115,17 @@ export interface WeatherData {
 	current?: SamplesWithUnit.Current;
 	hourly?: SamplesWithUnit.Hourly;
 	daily?: SamplesWithUnit.Daily;
+	location: Point3D;
+	timezone: string;
+	timezoneAbbr: string;
 }
 
-export type ComposableWeatherData<T extends keyof WeatherData> = Pick<
+export type WeatherDataComposition = "current" | "hourly" | "daily";
+export type ComposableWeatherData<T extends WeatherDataComposition> = Pick<
 	Required<WeatherData>,
 	T
->;
+> &
+	Omit<Required<WeatherData>, WeatherDataComposition>;
 
 // export type ComposableWeatherResult<T extends Samples> = OmitNever<{
 // 	current: Entry<T, Samples.Current, false>;
