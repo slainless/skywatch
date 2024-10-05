@@ -6,6 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"test": "vitest",
+		"codegen": "bun run typegen",
 		"typegen": "bunx typia generate --input guard/template --output guard/artifact --project tsconfig.json"
 	},
 	"devDependencies": {
