@@ -16,5 +16,9 @@
 	},
 	"dependencies": {
 		"typia": "^6.11.1"
+	},
+	"exports": {
+		".": "./index.ts",
+		"./provider/openmeteo": "./provider/openmeteo/index.ts"
 	}
 }
