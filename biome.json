@@ -25,7 +25,13 @@
 					"level": "warn",
 					"fix": "none"
 				},
-				"noExplicitAny": "warn"
+				"noExplicitAny": "off"
+			},
+			"style": {
+				"noNonNullAssertion": {
+					"level": "warn",
+					"fix": "none"
+				}
 			}
 		}
 	},
