@@ -11,6 +11,7 @@
 	},
 	"devDependencies": {
 		"@deweazer/config": "*",
+		"@vitest/coverage-v8": "2.1.2",
 		"type-fest": "^4.26.1",
 		"typescript": "^5.6.2",
 		"vitest": "^2.1.2"
