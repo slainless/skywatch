@@ -1,0 +1,11 @@
+{
+	"name": "@deweazer/persistence",
+	"type": "module",
+	"devDependencies": {
+		"@deweazer/config": "*",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	}
+}
