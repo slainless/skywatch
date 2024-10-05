@@ -23,6 +23,7 @@ export {
 	DEFAULT_PAST_DAYS,
 	DEFAULT_PAST_HOURS,
 } from "./provider.js";
+export { WeatherQueryError, WeatherAPIMismatchError } from "./error.js";
 
 export type WeatherResult<T extends QueryOptions> = ComposableWeatherData<
 	SampleUsed<T>
