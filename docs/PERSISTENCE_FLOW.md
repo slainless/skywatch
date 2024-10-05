@@ -12,7 +12,13 @@
 
 ## Overview
 
-The system adopts *lazy-loaded* caching strategy and "*stale-while-revalidate*" (SWR) strategy. Whenever a request came in and data is available in database (or cache), the data should be returned to the client immediately. If the data is deemed stale or outdated, system should make use of SWR mechanism to incrementally deliver data: delivering the stale/outdated data as soon as possible, fetching new data from remote resource, then return the fresh data while also updating the cache and database.
+The system adopts *lazy-loaded* caching strategy and "*stale-while-revalidate*" (SWR) strategy. 
+Whenever a request came in and data is available in database (or cache), the data should be returned to the client immediately. 
+If the data is deemed stale or outdated, system should make use of SWR mechanism to incrementally deliver data: 
+  
+  - Attaching short interval SWR cache control to stale data.
+  - Delivering the stale data and then fetching new data from remote resource in background. 
+  - Client that receive the stale response should render the response while attempting revalidation as early as possible to refresh their data.
 
 Data renewal should be handled by main service while cache renewal should be handled by persistence layer. Main service requires no knowledge of the underlying persistence system outside of the provided interface.
 
@@ -49,13 +55,13 @@ sequenceDiagram
 
   persistence-->>-api: Weather found
   note left of api: Weather is stale
+  note left of api: SWR cache control attached
 
-  api-->>front: Returning stale weather
+  api-->>-front: Returning stale weather
 
   api->>+weather: Get new weather
   weather-->>-api: New weather data
 
-  activate api
 
   api--)persistence: Update weather
   activate persistence
@@ -65,8 +71,10 @@ sequenceDiagram
   
   api--)broker: Push new weather notification (email)
 
-  api-->>-front: Returning fresh weather
-  deactivate api
+  front->>+api: Revalidating weather
+  note left of api: Process repeating
+  note left of api: Weather should be fresh
+
 ```
 
 ### Cache miss, database hit (fresh)
@@ -120,14 +128,13 @@ sequenceDiagram
   persistence-->>-api: Weather found
   deactivate persistence
   note left of api: Weather is stale
+  note left of api: SWR cache control attached
 
-  api-->>front: Returning stale weather
+  api-->>-front: Returning stale weather
 
   
   api->>+weather: Get new weather
   weather-->>-api: New weather data
-
-  activate api
 
   api--)persistence: Update weather
   activate persistence
@@ -137,8 +144,9 @@ sequenceDiagram
   
   api--)broker: Push new weather notification (email)
 
-  api-->>-front: Returning fresh weather
-  deactivate api
+  front->>+api: Revalidating weather
+  note left of api: Process repeating
+  note left of api: Weather should be fresh
 ```
 
 ### Cache miss, database miss
