@@ -1,1 +1,5 @@
-export { createProcess, CreateProcessOptions, AbortError } from "./process.js";
+export {
+	createProcess,
+	type CreateProcessOptions,
+	AbortError,
+} from "./process.js";
