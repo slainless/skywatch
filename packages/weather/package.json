@@ -5,11 +5,13 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"test": "vitest"
+		"test": "vitest",
+		"typegen": "bunx typia generate --input guard/template --output guard/artifact --project tsconfig.json"
 	},
 	"devDependencies": {
 		"@deweazer/tsconfig": "*",
 		"type-fest": "^4.26.1",
+		"typescript": "^5.6.2",
 		"vitest": "^2.1.2"
 	},
 	"dependencies": {
