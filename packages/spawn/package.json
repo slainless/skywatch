@@ -1,0 +1,13 @@
+{
+	"name": "@deweazer/spawn",
+	"module": "index.ts",
+	"type": "module",
+	"devDependencies": {
+		"@deweazer/config": "*",
+		"@types/bun": "^1.1.10",
+		"delay-cli": "^2.0.0"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	}
+}
