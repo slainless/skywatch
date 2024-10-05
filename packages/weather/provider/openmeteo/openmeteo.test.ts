@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import {
 	buildUrl,
 	mapResponseToResult,
@@ -104,19 +104,21 @@ describe(buildUrl.name, () => {
 
 describe(mapResponseToResult.name, () => {
 	it("should map full response to unified WeatherResult", () => {
-		expect(mapResponseToResult(exampleResponse)).toEqual(exampleExpected);
+		expect(mapResponseToResult(exampleResponse)).toEqual(
+			exampleExpected as any,
+		);
 	});
 
 	it("should map partial response to unified WeatherResult", () => {
 		const { hourly: _, ...response } = exampleResponse;
 		const { hourly: $, ...expected } = exampleExpected;
-		expect(mapResponseToResult(response)).toEqual(expected);
+		expect(mapResponseToResult(response)).toEqual(expected as any);
 	});
 
 	it("should map barebone response to unified WeatherResult", () => {
 		const { hourly: _, daily: __, current: ___, ...response } = exampleResponse;
 		const { hourly: $, daily: $$, current: $$$, ...expected } = exampleExpected;
-		expect(mapResponseToResult(response)).toEqual(expected);
+		expect(mapResponseToResult(response)).toEqual(expected as any);
 	});
 });
 
