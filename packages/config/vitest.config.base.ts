@@ -1,9 +1,9 @@
-import { coverageConfigDefaults, defineConfig } from "vitest/config";
+import { coverageConfigDefaults, type UserConfig } from "vitest/config";
 
-export default defineConfig({
+export default {
 	test: {
 		coverage: {
 			exclude: ["**/artifact/**", ...coverageConfigDefaults.exclude],
 		},
 	},
-});
+} satisfies UserConfig;
