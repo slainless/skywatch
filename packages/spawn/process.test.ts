@@ -1,6 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { AbortError, createProcess } from "./process";
-import { $ } from "bun";
+import { AbortError, createProcess } from "./process.js";
 
 describe(createProcess.name, () => {
 	it("Should reject when returning early", async () => {
