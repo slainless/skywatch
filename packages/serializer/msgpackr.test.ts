@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test";
 import { MessagePackSerializer } from "./msgpackr.js";
-import example from "../test/example.expected.json" assert { type: "json" };
+import example from "./test/example.expected.json" assert { type: "json" };
 
 describe(`${MessagePackSerializer.name} e2e`, () => {
 	const packer = new MessagePackSerializer();

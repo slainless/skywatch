@@ -10,17 +10,16 @@
 		"@deweazer/spawn": "*",
 		"@types/bun": "latest"
 	},
+	"dependencies": {
+		"@deweazer/serializer": "*"
+	},
 	"peerDependencies": {
 		"typescript": "^5.0.0",
 		"redis": "^4.7.0",
 		"mongodb": "^6.9.0"
 	},
-	"dependencies": {
-		"msgpackr": "^1.11.0"
-	},
 	"exports": {
 		".": "./index.ts",
-		"./serializer": "./serializer/index.ts",
 		"./redis-kv": "./kv/redis/client.ts",
 		"./mongo-kv": "./kv/mongodb/client.ts",
 		"./lazy-load": "./lazy-load.ts"

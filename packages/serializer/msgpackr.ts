@@ -1,4 +1,4 @@
-import type { Serializer } from "../index.js";
+import type { Serializer } from "../persistence/index.js";
 import { pack, unpack } from "msgpackr";
 
 export class MessagePackSerializer implements Serializer {

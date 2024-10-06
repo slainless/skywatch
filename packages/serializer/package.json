@@ -1,0 +1,19 @@
+{
+	"name": "@deweazer/serializer",
+	"type": "module",
+	"devDependencies": {
+		"@deweazer/config": "*",
+		"@types/amqplib": "^0.10.5",
+		"@types/bun": "latest",
+		"@types/nodemailer": "^6.4.16"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"msgpackr": "^1.11.0"
+	},
+	"exports": {
+		".": "./index.ts"
+	}
+}
