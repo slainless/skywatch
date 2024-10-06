@@ -2,20 +2,31 @@
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"display": "Default",
 	"compilerOptions": {
-		"declaration": true,
-		"declarationMap": true,
-		"esModuleInterop": true,
-		"incremental": false,
-		"isolatedModules": true,
+		// Enable latest features
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
-		"module": "NodeNext",
+		"target": "ESNext",
+		"module": "ESNext",
 		"moduleDetection": "force",
-		"moduleResolution": "NodeNext",
-		"noUncheckedIndexedAccess": true,
+		"jsx": "react-jsx",
+		"allowJs": true,
+		"esModuleInterop": true,
+
+		// Bundler mode
+		"moduleResolution": "Bundler",
+		// "allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
-		"resolveJsonModule": true,
-		"skipLibCheck": true,
+		"declarationMap": true,
+		"isolatedModules": true,
+		"declaration": true,
+		"incremental": false,
+		"noEmit": true,
+
+		// Best practices
 		"strict": true,
-		"target": "ESNext"
+		"skipLibCheck": true,
+		"noFallthroughCasesInSwitch": true,
+
+		// Some stricter flags
+		"noUncheckedIndexedAccess": true
 	}
 }
