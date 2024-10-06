@@ -1,11 +1,20 @@
 {
 	"name": "@deweazer/persistence",
 	"type": "module",
+	"scripts": {
+		"dev:redis": "docker run --rm -p 6379:6379 redis"
+	},
 	"devDependencies": {
 		"@deweazer/config": "*",
+		"@deweazer/spawn": "*",
 		"@types/bun": "latest"
 	},
 	"peerDependencies": {
 		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"msgpackr": "^1.11.0",
+		"redis": "^4.7.0",
+		"seroval": "^1.1.1"
 	}
 }
