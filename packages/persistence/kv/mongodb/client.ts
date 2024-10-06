@@ -5,6 +5,9 @@ export const UnacknowledgedOperationError = new Error(
 	"Unacknowledged operation",
 );
 export const InvalidKeyTypeError = new TypeError("Key must be a string/number");
+export const NullValueError = new TypeError(
+	"Value must not be null or undefined",
+);
 
 export interface MongoKVOptions {
 	/**
@@ -59,6 +62,7 @@ export class MongoKV implements KV {
 
 	async set(key: any, value: any): Promise<void> {
 		MongoKV.assertsKey(key);
+		MongoKV.assertsNotNull(value);
 
 		const result = await this.collection.updateOne(
 			{ [this.options.idField]: key },
@@ -97,5 +101,9 @@ export class MongoKV implements KV {
 			default:
 				throw InvalidKeyTypeError;
 		}
+	}
+
+	static assertsNotNull(value: any): asserts value is NonNullable<any> {
+		if (value == null) throw NullValueError;
 	}
 }

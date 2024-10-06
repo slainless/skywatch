@@ -1,5 +1,5 @@
 import { describe, it, beforeAll, afterAll, expect } from "bun:test";
-import { InvalidKeyTypeError, RedisKV } from "./client.js";
+import { InvalidKeyTypeError, NullValueError, RedisKV } from "./client.js";
 import type { Subprocess } from "bun";
 import type { RedisClientType } from "redis";
 import { createClient } from "redis";
@@ -33,6 +33,8 @@ describe(RedisKV.name, () => {
 
 		await kv.set("world!", example);
 		expect(await kv.get("world!")).toEqual(example);
+
+		expect(await kv.get("NULL")).toBe(null);
 	});
 
 	it("should panic on receiving non-string/number key", async () => {
@@ -44,6 +46,13 @@ describe(RedisKV.name, () => {
 		expect(() =>
 			kv.delete(new URL("https://what.in.tarnation.xyz")),
 		).toThrowError(InvalidKeyTypeError);
+	});
+
+	it("should panic on receiving nullish value", async () => {
+		const kv = new RedisKV(client);
+
+		expect(() => kv.set("A", null)).toThrowError(NullValueError);
+		expect(() => kv.set("A", undefined)).toThrowError(NullValueError);
 	});
 
 	it("should be able to lookup value", async () => {

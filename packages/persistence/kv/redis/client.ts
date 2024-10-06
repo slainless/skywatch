@@ -3,6 +3,9 @@ import { commandOptions, type RedisClientType } from "redis";
 import { MessagePackSerializer } from "../../serializer/msgpackr.js";
 
 export const InvalidKeyTypeError = new TypeError("Key must be a string/number");
+export const NullValueError = new TypeError(
+	"Value must not be null or undefined",
+);
 
 export class RedisKV implements KV {
 	constructor(
@@ -23,21 +26,18 @@ export class RedisKV implements KV {
 			commandOptions({ returnBuffers: true }),
 			key.toString(),
 		);
-		if (value == null) return null;
-		if (isRaw) return value;
+		if (value == null || isRaw) return value;
 
-		const deserialized = this.serializer.deserialize(value);
-		if ("__$" in deserialized) return deserialized.__$;
-		this.delete(key);
-		return null;
+		return this.serializer.deserialize(value);
 	}
 
 	async set(key: any, value: any): Promise<void> {
 		RedisKV.assertsKey(key);
+		RedisKV.assertsNotNull(value);
 
 		return await void this.client.set(
 			key.toString(),
-			this.serializer.serialize({ __$: value }),
+			this.serializer.serialize(value),
 		);
 	}
 
@@ -61,5 +61,9 @@ export class RedisKV implements KV {
 			default:
 				throw InvalidKeyTypeError;
 		}
+	}
+
+	static assertsNotNull(value: any): asserts value is NonNullable<any> {
+		if (value == null) throw NullValueError;
 	}
 }
