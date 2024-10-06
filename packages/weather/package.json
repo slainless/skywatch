@@ -23,6 +23,6 @@
 	},
 	"exports": {
 		".": "./index.ts",
-		"./provider/openmeteo": "./provider/openmeteo/index.ts"
+		"./openmeteo": "./provider/openmeteo/index.ts"
 	}
 }
