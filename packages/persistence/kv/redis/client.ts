@@ -25,7 +25,11 @@ export class RedisKV implements KV {
 		);
 		if (value == null) return null;
 		if (isRaw) return value;
-		return this.serializer.deserialize(value);
+
+		const deserialized = this.serializer.deserialize(value);
+		if ("__$" in deserialized) return deserialized.__$;
+		this.delete(key);
+		return null;
 	}
 
 	async set(key: any, value: any): Promise<void> {
@@ -33,7 +37,7 @@ export class RedisKV implements KV {
 
 		return await void this.client.set(
 			key.toString(),
-			this.serializer.serialize(value),
+			this.serializer.serialize({ __$: value }),
 		);
 	}
 
