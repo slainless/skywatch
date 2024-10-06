@@ -20,7 +20,9 @@
 	},
 	"exports": {
 		".": "./index.ts",
-		"./kv": "./kv/index.ts",
-		"./serializer": "./serializer/index.ts"
+		"./serializer": "./serializer/index.ts",
+		"./redis-kv": "./kv/redis/client.ts",
+		"./mongo-kv": "./kv/mongodb/client.ts",
+		"./lazy-load": "./lazy-load.ts"
 	}
 }
