@@ -1,0 +1,19 @@
+{
+	"name": "@deweazer/benchmarking",
+	"module": "index.ts",
+	"type": "module",
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"@deweazer/config": "*",
+		"bson": "^6.8.0",
+		"mitata": "^1.0.10",
+		"msgpackr": "^1.11.0",
+		"seroval": "^1.1.1",
+		"sializer": "^0.3.0"
+	}
+}
