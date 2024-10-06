@@ -1,23 +1,16 @@
 import { describe, it, beforeAll, afterAll, expect } from "bun:test";
 import { InvalidKeyTypeError, RedisKV } from "./client.js";
-import { $, type Subprocess } from "bun";
-import { createProcess } from "@deweazer/spawn";
+import type { Subprocess } from "bun";
 import type { RedisClientType } from "redis";
 import { createClient } from "redis";
 import example from "../../test/example.expected.json" assert { type: "json" };
+import { runRedisContainer, stopContainer } from "../../test/container.js";
 
 let containerID: string;
 let container: Subprocess<"ignore", "pipe", "inherit">;
 let client: RedisClientType;
 beforeAll(async () => {
-	containerID = crypto.randomUUID();
-	container = await createProcess(
-		`docker run --rm -p 6379:6379 --name ${containerID} redis`,
-		(line) => {
-			return line.indexOf("Ready to accept connections tcp") !== -1;
-		},
-	);
-	await Bun.sleep(500);
+	({ id: containerID, container } = await runRedisContainer());
 	client = createClient();
 	await client.connect();
 });
@@ -28,9 +21,7 @@ afterAll(async () => {
 		await client.flushAll();
 		await client.disconnect();
 	} catch (e) {}
-	await $`docker stop ${containerID} > nul`;
-	const returned = await container.exited;
-	// console.log(`Closed redis container with code: ${returned}`);
+	await stopContainer(container, containerID);
 });
 
 describe(RedisKV.name, () => {
