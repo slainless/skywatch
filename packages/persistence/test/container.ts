@@ -1,5 +1,4 @@
 import { createProcess } from "@deweazer/spawn";
-import { $, type Subprocess } from "bun";
 
 export async function runRedisContainer() {
 	const id = crypto.randomUUID();
@@ -11,7 +10,7 @@ export async function runRedisContainer() {
 	);
 	await Bun.sleep(500);
 
-	return { id, container };
+	return { containerID: id, container };
 }
 
 export async function runMongoContainer() {
@@ -24,10 +23,5 @@ export async function runMongoContainer() {
 	);
 	await Bun.sleep(500);
 
-	return { id, container };
-}
-
-export async function stopContainer(container: Subprocess<any>, id: string) {
-	await $`docker stop ${id} > nul`;
-	return container.exited;
+	return { containerID: id, container };
 }

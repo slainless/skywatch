@@ -2,33 +2,28 @@ import { describe, it, beforeAll, afterAll, expect } from "bun:test";
 import { InvalidKeyTypeError, MongoKV, NullValueError } from "./client.js";
 import type { Subprocess } from "bun";
 import example from "../../test/example.expected.json" assert { type: "json" };
-import { runMongoContainer, stopContainer } from "../../test/container.js";
 import { type Collection, MongoClient } from "mongodb";
+import { BunContainerOrchestrator } from "@deweazer/spawn/container";
+import { runMongoContainer } from "../../test/container.js";
 
-let containerID: string;
-let container: Subprocess<"ignore", "pipe", "inherit">;
-let client: MongoClient;
-let collection: Collection;
-beforeAll(async () => {
-	({ id: containerID, container } = await runMongoContainer());
-	client = await new MongoClient("mongodb://localhost:27017");
-	await client.connect();
+const idField = "key";
+const mongo = new BunContainerOrchestrator<{
+	collection: Collection;
+	client: MongoClient;
+}>(runMongoContainer, "deweazer.persistence.test.mongo")
+	.onStart(async (vars) => {
+		vars.client = new MongoClient("mongodb://localhost:27017");
+		await vars.client.connect();
 
-	collection = client.db("test").collection("kv");
-	await collection.createIndex("key", { unique: true });
-});
-
-afterAll(async () => {
-	if (container == null || container.killed) return;
-	try {
-		await client.close();
-	} catch (e) {}
-	await stopContainer(container, containerID);
-});
+		vars.collection = vars.client.db("test").collection("kv");
+		await vars.collection.createIndex(idField, { unique: true });
+	})
+	.onStop(async (vars) => vars.client.close())
+	.orchestrate();
 
 describe(MongoKV.name, () => {
 	it("should be able to set & get value", async () => {
-		const kv = new MongoKV(collection, { idField: "key" });
+		const kv = new MongoKV(mongo.collection, { idField });
 
 		await kv.set("hello", "World!");
 		expect(await kv.get("hello")).toBe("World!");
@@ -40,7 +35,7 @@ describe(MongoKV.name, () => {
 	});
 
 	it("should panic on receiving non-string/number key", async () => {
-		const kv = new MongoKV(collection, { idField: "key" });
+		const kv = new MongoKV(mongo.collection, { idField });
 
 		expect(() => kv.get({})).toThrowError(InvalidKeyTypeError);
 		expect(() => kv.set([], "A")).toThrowError(InvalidKeyTypeError);
@@ -51,14 +46,14 @@ describe(MongoKV.name, () => {
 	});
 
 	it("should panic on receiving nullish value", async () => {
-		const kv = new MongoKV(collection, { idField: "key" });
+		const kv = new MongoKV(mongo.collection, { idField });
 
 		expect(() => kv.set("A", null)).toThrowError(NullValueError);
 		expect(() => kv.set("A", undefined)).toThrowError(NullValueError);
 	});
 
 	it("should be able to lookup value", async () => {
-		const kv = new MongoKV(collection, { idField: "key" });
+		const kv = new MongoKV(mongo.collection, { idField });
 
 		await kv.set("hello", "World!");
 		expect(await kv.has("hello")).toBe(true);
@@ -88,7 +83,7 @@ describe(MongoKV.name, () => {
 	});
 
 	it("should be able to remove value", async () => {
-		const kv = new MongoKV(collection, { idField: "key" });
+		const kv = new MongoKV(mongo.collection, { idField });
 
 		await kv.set("hello", "World!");
 		expect(await kv.has("hello")).toBe(true);

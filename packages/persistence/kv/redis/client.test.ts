@@ -1,32 +1,28 @@
-import { describe, it, beforeAll, afterAll, expect } from "bun:test";
+import { describe, it, expect } from "bun:test";
 import { InvalidKeyTypeError, NullValueError, RedisKV } from "./client.js";
-import type { Subprocess } from "bun";
 import type { RedisClientType } from "redis";
 import { createClient } from "redis";
 import example from "../../test/example.expected.json" assert { type: "json" };
-import { runRedisContainer, stopContainer } from "../../test/container.js";
+import { runRedisContainer } from "../../test/container.js";
+import { BunContainerOrchestrator } from "@deweazer/spawn/container";
 
-let containerID: string;
-let container: Subprocess<"ignore", "pipe", "inherit">;
-let client: RedisClientType;
-beforeAll(async () => {
-	({ id: containerID, container } = await runRedisContainer());
-	client = createClient();
-	await client.connect();
-});
-
-afterAll(async () => {
-	if (container == null || container.killed) return;
-	try {
-		await client.flushAll();
-		await client.disconnect();
-	} catch (e) {}
-	await stopContainer(container, containerID);
-});
+const redis = new BunContainerOrchestrator<{ client: RedisClientType }>(
+	runRedisContainer,
+	"deweazer.persistence.test.redis",
+)
+	.onStart(async (vars) => {
+		vars.client = createClient();
+		await vars.client.connect();
+	})
+	.onStop(async (vars) => {
+		await vars.client.flushAll();
+		await vars.client.disconnect();
+	})
+	.orchestrate();
 
 describe(RedisKV.name, () => {
 	it("should be able to set & get value", async () => {
-		const kv = new RedisKV(client);
+		const kv = new RedisKV(redis.client);
 
 		await kv.set("hello", "World!");
 		expect(await kv.get("hello")).toBe("World!");
@@ -38,7 +34,7 @@ describe(RedisKV.name, () => {
 	});
 
 	it("should panic on receiving non-string/number key", async () => {
-		const kv = new RedisKV(client);
+		const kv = new RedisKV(redis.client);
 
 		expect(() => kv.get({})).toThrowError(InvalidKeyTypeError);
 		expect(() => kv.set([], "A")).toThrowError(InvalidKeyTypeError);
@@ -49,14 +45,14 @@ describe(RedisKV.name, () => {
 	});
 
 	it("should panic on receiving nullish value", async () => {
-		const kv = new RedisKV(client);
+		const kv = new RedisKV(redis.client);
 
 		expect(() => kv.set("A", null)).toThrowError(NullValueError);
 		expect(() => kv.set("A", undefined)).toThrowError(NullValueError);
 	});
 
 	it("should be able to lookup value", async () => {
-		const kv = new RedisKV(client);
+		const kv = new RedisKV(redis.client);
 
 		await kv.set("hello", "World!");
 		expect(await kv.has("hello")).toBe(true);
@@ -86,7 +82,7 @@ describe(RedisKV.name, () => {
 	});
 
 	it("should be able to remove value", async () => {
-		const kv = new RedisKV(client);
+		const kv = new RedisKV(redis.client);
 
 		await kv.set("hello", "World!");
 		expect(await kv.has("hello")).toBe(true);

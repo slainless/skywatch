@@ -2,8 +2,8 @@
 	"name": "@deweazer/persistence",
 	"type": "module",
 	"scripts": {
-		"dev:redis": "docker run --rm -p 6379:6379 redis",
-		"dev:mongo": "docker run --rm -p 27017:27017 mongo"
+		"test:container:redis": "docker run --rm --name deweazer.persistence.test.redis -p 6379:6379 redis",
+		"test:container:mongo": "docker run --rm --name deweazer.persistence.test.mongo -p 27017:27017 mongo"
 	},
 	"devDependencies": {
 		"@deweazer/config": "*",

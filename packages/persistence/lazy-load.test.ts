@@ -1,74 +1,46 @@
-import {
-	describe,
-	it,
-	beforeAll,
-	afterAll,
-	expect,
-	spyOn,
-	afterEach,
-	mock,
-} from "bun:test";
-import type { Subprocess } from "bun";
-import example from "./test/example.expected.json" assert { type: "json" };
-import {
-	runMongoContainer,
-	runRedisContainer,
-	stopContainer,
-} from "./test/container.js";
-import { type Collection, MongoClient } from "mongodb";
-import { createClient, type RedisClientType } from "redis";
+import { describe, it, expect, spyOn, afterEach, mock } from "bun:test";
 import { LazyLoadPersistence } from "./lazy-load";
-import { MongoKV } from "./kv/mongodb/client";
-import { RedisKV } from "./kv/redis/client";
+import { BunContainerOrchestrator } from "@deweazer/spawn/container";
+import { runMongoContainer, runRedisContainer } from "./test/container";
 
-let redisID: string;
-let redis: Subprocess<"ignore", "pipe", "inherit">;
+import { MongoClient } from "mongodb";
+import { MongoKV } from "./kv/mongodb/client.js";
 
-let mongoID: string;
-let mongo: Subprocess<"ignore", "pipe", "inherit">;
+import { createClient, type RedisClientType } from "redis";
+import { RedisKV } from "./kv/redis/client.js";
 
-let mongoClient: MongoClient;
-let redisClient: RedisClientType;
+const mongo = new BunContainerOrchestrator<{
+	client: MongoClient;
+	kv: MongoKV;
+}>(runMongoContainer, "deweazer.persistence.test.mongo")
+	.onStart(async (vars) => {
+		vars.client = await new MongoClient("mongodb://localhost:27017");
 
-let mongoKV: MongoKV;
-let redisKV: RedisKV;
-beforeAll(async () => {
-	[{ id: mongoID, container: mongo }, { id: redisID, container: redis }] =
-		await Promise.all([runMongoContainer(), runRedisContainer()]);
-	await Bun.sleep(300);
+		const collection = vars.client.db("test").collection("kv");
+		await collection.createIndex("key", { unique: true });
 
-	mongoClient = await new MongoClient("mongodb://localhost:27017");
-	redisClient = createClient();
+		vars.kv = new MongoKV(collection, { idField: "key" });
+	})
+	.onStop(async (vars) => {
+		await vars.client.close();
+	})
+	.orchestrate();
 
-	Promise.all([mongoClient.connect(), redisClient.connect()]);
+const redis = new BunContainerOrchestrator<{
+	client: RedisClientType;
+	kv: RedisKV;
+}>(runRedisContainer, "deweazer.persistence.test.redis")
+	.onStart(async (vars) => {
+		vars.client = createClient();
+		await vars.client.connect();
 
-	const collection = mongoClient.db("test").collection("kv");
-	await collection.createIndex("key", { unique: true });
-
-	mongoKV = new MongoKV(collection, { idField: "key" });
-	redisKV = new RedisKV(redisClient);
-});
-
-afterAll(
-	async () =>
-		await Promise.all([
-			(async () => {
-				if (mongo == null || mongo.killed) return;
-				try {
-					await mongoClient.close();
-				} catch (e) {}
-				await stopContainer(mongo, mongoID);
-			})(),
-			(async () => {
-				if (redis == null || redis.killed) return;
-				try {
-					await redisClient.flushAll();
-					await redisClient.disconnect();
-				} catch (e) {}
-				await stopContainer(redis, redisID);
-			})(),
-		]),
-);
+		vars.kv = new RedisKV(vars.client);
+	})
+	.onStop(async (vars) => {
+		await vars.client.flushAll();
+		await vars.client.disconnect();
+	})
+	.orchestrate();
 
 describe(LazyLoadPersistence.name, () => {
 	afterEach(() => {
@@ -76,11 +48,11 @@ describe(LazyLoadPersistence.name, () => {
 	});
 
 	it("should return immediately on cache hit", async () => {
-		const persistence = new LazyLoadPersistence(redisKV, mongoKV);
+		const persistence = new LazyLoadPersistence(redis.kv, mongo.kv);
 
-		await redisKV.set("cache-hit", "Hello, World!");
-		const redisGetSpy = spyOn(redisKV, "get");
-		const mongoGetSpy = spyOn(mongoKV, "get");
+		await redis.kv.set("cache-hit", "Hello, World!");
+		const redisGetSpy = spyOn(redis.kv, "get");
+		const mongoGetSpy = spyOn(mongo.kv, "get");
 
 		expect(redisGetSpy).toHaveBeenCalledTimes(0);
 		expect(mongoGetSpy).toHaveBeenCalledTimes(0);
@@ -98,11 +70,11 @@ describe(LazyLoadPersistence.name, () => {
 	});
 
 	it("should call storage on cache miss", async () => {
-		const persistence = new LazyLoadPersistence(redisKV, mongoKV);
+		const persistence = new LazyLoadPersistence(redis.kv, mongo.kv);
 
-		await mongoKV.set("cache-miss", "Hello, World!");
-		const redisGetSpy = spyOn(redisKV, "get");
-		const mongoGetSpy = spyOn(mongoKV, "get");
+		await mongo.kv.set("cache-miss", "Hello, World!");
+		const redisGetSpy = spyOn(redis.kv, "get");
+		const mongoGetSpy = spyOn(mongo.kv, "get");
 
 		expect(redisGetSpy).toHaveBeenCalledTimes(0);
 		expect(mongoGetSpy).toHaveBeenCalledTimes(0);
@@ -122,12 +94,12 @@ describe(LazyLoadPersistence.name, () => {
 	});
 
 	it("should populate cache on cache miss, storage hit", async () => {
-		const persistence = new LazyLoadPersistence(redisKV, mongoKV);
+		const persistence = new LazyLoadPersistence(redis.kv, mongo.kv);
 
-		await mongoKV.set("cache-miss, storage-hit", "Hello, World!");
-		const redisGetSpy = spyOn(redisKV, "get");
-		const mongoGetSpy = spyOn(mongoKV, "get");
-		const redisSetSpy = spyOn(redisKV, "set");
+		await mongo.kv.set("cache-miss, storage-hit", "Hello, World!");
+		const redisGetSpy = spyOn(redis.kv, "get");
+		const mongoGetSpy = spyOn(mongo.kv, "get");
+		const redisSetSpy = spyOn(redis.kv, "set");
 
 		expect(redisGetSpy).toHaveBeenCalledTimes(0);
 		expect(mongoGetSpy).toHaveBeenCalledTimes(0);
@@ -156,11 +128,11 @@ describe(LazyLoadPersistence.name, () => {
 	});
 
 	it("should return null value on cache miss, storage miss", async () => {
-		const persistence = new LazyLoadPersistence(redisKV, mongoKV);
+		const persistence = new LazyLoadPersistence(redis.kv, mongo.kv);
 
-		const redisGetSpy = spyOn(redisKV, "get");
-		const mongoGetSpy = spyOn(mongoKV, "get");
-		const redisSetSpy = spyOn(redisKV, "set");
+		const redisGetSpy = spyOn(redis.kv, "get");
+		const mongoGetSpy = spyOn(mongo.kv, "get");
+		const redisSetSpy = spyOn(redis.kv, "set");
 
 		expect(redisGetSpy).toHaveBeenCalledTimes(0);
 		expect(mongoGetSpy).toHaveBeenCalledTimes(0);
@@ -183,10 +155,10 @@ describe(LazyLoadPersistence.name, () => {
 	});
 
 	it("should set both cache and storage on set call", async () => {
-		const persistence = new LazyLoadPersistence(redisKV, mongoKV);
+		const persistence = new LazyLoadPersistence(redis.kv, mongo.kv);
 
-		const mongoSetSpy = spyOn(mongoKV, "set");
-		const redisSetSpy = spyOn(redisKV, "set");
+		const mongoSetSpy = spyOn(mongo.kv, "set");
+		const redisSetSpy = spyOn(redis.kv, "set");
 
 		expect(mongoSetSpy).toHaveBeenCalledTimes(0);
 		expect(redisSetSpy).toHaveBeenCalledTimes(0);
