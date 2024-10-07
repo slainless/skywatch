@@ -1,62 +1,51 @@
-import type { Channel, Connection, ConsumeMessage, Replies } from "amqplib";
 import type { SendMailOptions, Transporter } from "nodemailer";
 import { QUEUE_PREFIX } from "./broker";
 import { MessagePackSerializer } from "@deweazer/serializer";
 import { Mutex } from "async-mutex";
 import { assertMail } from "./guard/artifact/message";
+import type {
+	AMQPChannel,
+	AMQPConsumer,
+	AMQPMessage,
+	AMQPQueue,
+} from "@cloudamqp/amqp-client";
 
 export class EmailSender {
-	private consumer: Replies.Consume | null = null;
+	private consumer: AMQPConsumer | null = null;
 	private consumerMut = new Mutex();
 
 	constructor(
-		public channel: Channel,
-		private emailQueue: string,
+		public queue: AMQPQueue,
 		public transporter: Transporter,
 		private serializer = MessagePackSerializer.serializer,
 	) {}
 
-	private async onMessage(message: ConsumeMessage | null) {
-		if (message == null) return;
+	private async onMessage(message: AMQPMessage) {
 		try {
-			const mail = this.serializer.deserialize(message.content);
+			if (message.body == null) return message.nack();
+			const mail = this.serializer.deserialize(Buffer.from(message.body));
 			assertMail(mail);
+			message.ack();
 			await this.transporter.sendMail(mail);
-			this.ack(message);
 		} catch (e) {
 			// let us just drop the push notification on error for now...
-			this.nack(message);
+			return message.nack();
 		}
 	}
 
 	async startSending() {
 		return this.consumerMut.runExclusive(async () => {
 			if (this.consumer != null) return;
-			this.consumer = await this.channel.consume(
-				this.emailQueue,
-				this.onMessage.bind(this),
-			);
+			this.consumer = await this.queue.subscribe({}, this.onMessage.bind(this));
 		});
 	}
 
 	async stopSending() {
 		return this.consumerMut.runExclusive(async () => {
 			if (this.consumer == null) return;
-			await this.channel.cancel(this.consumer.consumerTag);
+			await this.consumer.cancel();
 			this.consumer = null;
 		});
-	}
-
-	async close() {
-		return this.channel.close();
-	}
-
-	private ack(message: ConsumeMessage) {
-		this.channel.ack(message);
-	}
-
-	private nack(message: ConsumeMessage, requeue?: boolean) {
-		this.channel.nack(message, false, requeue ?? false);
 	}
 
 	// private deserialize(message: ConsumeMessage): MailMessage | null {
@@ -71,11 +60,10 @@ export class EmailSender {
 }
 
 export async function createEmailSender(
-	connection: Connection,
+	channel: AMQPChannel,
 	emailAddr: string,
 	transporter: Transporter,
 ) {
-	const channel = await connection.createChannel();
-	await channel.assertQueue(QUEUE_PREFIX + emailAddr);
-	return new EmailSender(channel, QUEUE_PREFIX + emailAddr, transporter);
+	const queue = await channel.queue(QUEUE_PREFIX + emailAddr);
+	return new EmailSender(queue, transporter);
 }

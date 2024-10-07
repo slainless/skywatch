@@ -3,7 +3,8 @@
 	"type": "module",
 	"scripts": {
 		"codegen": "bun run typegen",
-		"typegen": "bunx typia generate --input guard/template --output guard/artifact --project tsconfig.json"
+		"typegen": "bunx typia generate --input guard/template --output guard/artifact --project tsconfig.json",
+		"test:container:mq": "docker run --rm --hostname mq --name deweazer.email.test.mq -p 5672:5672 rabbitmq"
 	},
 	"devDependencies": {
 		"@deweazer/config": "*",
@@ -17,7 +18,7 @@
 		"typescript": "^5.0.0"
 	},
 	"dependencies": {
-		"amqplib": "^0.10.4",
+		"@cloudamqp/amqp-client": "^3.1.1",
 		"async-mutex": "^0.5.0",
 		"nodemailer": "^6.9.15",
 		"typia": "^6.11.1"
