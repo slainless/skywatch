@@ -25,8 +25,8 @@ export class EmailSender {
 			if (message.body == null) return message.nack();
 			const mail = this.serializer.deserialize(Buffer.from(message.body));
 			assertMail(mail);
-			message.ack();
 			await this.transporter.sendMail(mail);
+			return message.ack();
 		} catch (e) {
 			// let us just drop the push notification on error for now...
 			return message.nack();
@@ -36,7 +36,10 @@ export class EmailSender {
 	async startSending() {
 		return this.consumerMut.runExclusive(async () => {
 			if (this.consumer != null) return;
-			this.consumer = await this.queue.subscribe({}, this.onMessage.bind(this));
+			this.consumer = await this.queue.subscribe(
+				{ noAck: false },
+				this.onMessage.bind(this),
+			);
 		});
 	}
 
