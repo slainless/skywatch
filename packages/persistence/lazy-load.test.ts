@@ -1,46 +1,9 @@
 import { afterEach, describe, expect, it, mock, spyOn } from "bun:test";
-import { BunContainerOrchestrator } from "@deweazer/spawn/container";
 import { LazyLoadPersistence } from "./lazy-load";
-import { runMongoContainer, runRedisContainer } from "./test/container";
+import { Mongo, Redis } from "./test/container";
 
-import { MongoClient } from "mongodb";
-import { MongoKV } from "./kv/mongodb/client.js";
-
-import { type RedisClientType, createClient } from "redis";
-import { RedisKV } from "./kv/redis/client.js";
-
-const mongo = new BunContainerOrchestrator<{
-	client: MongoClient;
-	kv: MongoKV;
-}>(runMongoContainer, "deweazer.persistence.test.mongo")
-	.onStart(async (vars) => {
-		vars.client = await new MongoClient("mongodb://localhost:27017");
-
-		const collection = vars.client.db("test").collection("kv");
-		await collection.createIndex("key", { unique: true });
-
-		vars.kv = new MongoKV(collection, { idField: "key" });
-	})
-	.onStop(async (vars) => {
-		await vars.client.close();
-	})
-	.orchestrate();
-
-const redis = new BunContainerOrchestrator<{
-	client: RedisClientType;
-	kv: RedisKV;
-}>(runRedisContainer, "deweazer.persistence.test.redis")
-	.onStart(async (vars) => {
-		vars.client = createClient();
-		await vars.client.connect();
-
-		vars.kv = new RedisKV(vars.client);
-	})
-	.onStop(async (vars) => {
-		await vars.client.flushAll();
-		await vars.client.disconnect();
-	})
-	.orchestrate();
+const redis = Redis.orchestrate();
+const mongo = Mongo.orchestrate();
 
 describe(LazyLoadPersistence.name, () => {
 	afterEach(() => {

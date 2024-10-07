@@ -1,29 +1,13 @@
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
-import { BunContainerOrchestrator } from "@deweazer/spawn/container";
-import type { Subprocess } from "bun";
-import { type Collection, MongoClient } from "mongodb";
-import { runMongoContainer } from "../../test/container.js";
+import { describe, expect, it } from "bun:test";
+import { Mongo } from "../../test/container.js";
 import example from "../../test/example.expected.json" assert { type: "json" };
 import { InvalidKeyTypeError, MongoKV, NullValueError } from "./client.js";
 
-const idField = "key";
-const mongo = new BunContainerOrchestrator<{
-	collection: Collection;
-	client: MongoClient;
-}>(runMongoContainer, "deweazer.persistence.test.mongo")
-	.onStart(async (vars) => {
-		vars.client = new MongoClient("mongodb://localhost:27017");
-		await vars.client.connect();
-
-		vars.collection = vars.client.db("test").collection("kv");
-		await vars.collection.createIndex(idField, { unique: true });
-	})
-	.onStop(async (vars) => vars.client.close())
-	.orchestrate();
+const mongo = Mongo.orchestrate();
 
 describe(MongoKV.name, () => {
 	it("should be able to set & get value", async () => {
-		const kv = new MongoKV(mongo.collection, { idField });
+		const kv = new MongoKV(mongo.collection, { idField: mongo.key });
 
 		await kv.set("hello", "World!");
 		expect(await kv.get("hello")).toBe("World!");
@@ -35,7 +19,7 @@ describe(MongoKV.name, () => {
 	});
 
 	it("should panic on receiving non-string/number key", async () => {
-		const kv = new MongoKV(mongo.collection, { idField });
+		const kv = new MongoKV(mongo.collection, { idField: mongo.key });
 
 		expect(() => kv.get({})).toThrowError(InvalidKeyTypeError);
 		expect(() => kv.set([], "A")).toThrowError(InvalidKeyTypeError);
@@ -46,14 +30,14 @@ describe(MongoKV.name, () => {
 	});
 
 	it("should panic on receiving nullish value", async () => {
-		const kv = new MongoKV(mongo.collection, { idField });
+		const kv = new MongoKV(mongo.collection, { idField: mongo.key });
 
 		expect(() => kv.set("A", null)).toThrowError(NullValueError);
 		expect(() => kv.set("A", undefined)).toThrowError(NullValueError);
 	});
 
 	it("should be able to lookup value", async () => {
-		const kv = new MongoKV(mongo.collection, { idField });
+		const kv = new MongoKV(mongo.collection, { idField: mongo.key });
 
 		await kv.set("hello", "World!");
 		expect(await kv.has("hello")).toBe(true);
@@ -83,7 +67,7 @@ describe(MongoKV.name, () => {
 	});
 
 	it("should be able to remove value", async () => {
-		const kv = new MongoKV(mongo.collection, { idField });
+		const kv = new MongoKV(mongo.collection, { idField: mongo.key });
 
 		await kv.set("hello", "World!");
 		expect(await kv.has("hello")).toBe(true);

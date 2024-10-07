@@ -1,24 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { BunContainerOrchestrator } from "@deweazer/spawn/container";
-import type { RedisClientType } from "redis";
-import { createClient } from "redis";
-import { runRedisContainer } from "../../test/container.js";
+import { Redis } from "../../test/container.js";
 import example from "../../test/example.expected.json" assert { type: "json" };
 import { InvalidKeyTypeError, NullValueError, RedisKV } from "./client.js";
 
-const redis = new BunContainerOrchestrator<{ client: RedisClientType }>(
-	runRedisContainer,
-	"deweazer.persistence.test.redis",
-)
-	.onStart(async (vars) => {
-		vars.client = createClient();
-		await vars.client.connect();
-	})
-	.onStop(async (vars) => {
-		await vars.client.flushAll();
-		await vars.client.disconnect();
-	})
-	.orchestrate();
+const redis = Redis.orchestrate();
 
 describe(RedisKV.name, () => {
 	it("should be able to set & get value", async () => {
