@@ -10,6 +10,7 @@ const mq = RabbitMQ().orchestrate();
 const mh = MailHog().orchestrate();
 
 const mailhog = ky.create({ prefixUrl: "http://localhost:8025/api/v1" });
+
 const serializer = MessagePackSerializer.serializer;
 const createMail = <T extends SendMailOptions>(mail: T) => mail;
 

@@ -5,7 +5,7 @@ import { QUEUE_PREFIX } from "./broker";
 import { createEmailPusher } from "./pusher";
 import { RabbitMQ } from "./test/container";
 
-const mq = RabbitMQ.orchestrate();
+const mq = RabbitMQ().orchestrate();
 
 describe(createEmailPusher.name, async () => {
 	beforeEach(async () => {

@@ -3,7 +3,7 @@ import { Mongo } from "../../test/container.js";
 import example from "../../test/example.expected.json" assert { type: "json" };
 import { InvalidKeyTypeError, MongoKV, NullValueError } from "./client.js";
 
-const mongo = Mongo.orchestrate();
+const mongo = Mongo().orchestrate();
 
 describe(MongoKV.name, () => {
 	it("should be able to set & get value", async () => {

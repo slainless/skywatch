@@ -3,7 +3,7 @@ import { Redis } from "../../test/container.js";
 import example from "../../test/example.expected.json" assert { type: "json" };
 import { InvalidKeyTypeError, NullValueError, RedisKV } from "./client.js";
 
-const redis = Redis.orchestrate();
+const redis = Redis().orchestrate();
 
 describe(RedisKV.name, () => {
 	it("should be able to set & get value", async () => {

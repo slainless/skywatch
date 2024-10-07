@@ -2,8 +2,8 @@ import { afterEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { LazyLoadPersistence } from "./lazy-load";
 import { Mongo, Redis } from "./test/container";
 
-const redis = Redis.orchestrate();
-const mongo = Mongo.orchestrate();
+const redis = Redis().orchestrate();
+const mongo = Mongo().orchestrate();
 
 describe(LazyLoadPersistence.name, () => {
 	afterEach(() => {
