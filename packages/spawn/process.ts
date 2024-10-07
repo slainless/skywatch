@@ -1,4 +1,4 @@
-import type { SpawnOptions, Subprocess } from "bun";
+import type { ReadableSubprocess, SpawnOptions, Subprocess } from "bun";
 
 export class AbortError extends Error {
 	constructor(
@@ -12,66 +12,75 @@ export class AbortError extends Error {
 	}
 }
 
-type PipedStdout = { stdout: "pipe" };
 export interface CreateProcessOptions
-	extends Omit<SpawnOptions.OptionsObject, "stdout"> {
+	extends Omit<
+		SpawnOptions.OptionsObject,
+		"stdout" | "stderr" | "stdio" | "onExit"
+	> {
 	signal?: AbortSignal;
 }
 export function createProcess<Opts extends CreateProcessOptions>(
 	cmd: string,
 	readyCheck: (line: string) => boolean,
 	opts?: Opts,
-): Promise<SpawnOptions.OptionsToSubprocess<Opts & PipedStdout>> {
-	const { onExit, signal, ...rest } = opts ?? {};
-	return new Promise<SpawnOptions.OptionsToSubprocess<Opts & PipedStdout>>(
-		(res, rej) => {
-			if (opts?.signal?.aborted)
-				return rej(new AbortError(cmd, "Early signal abort"));
+): Promise<ReadableSubprocess> {
+	const { signal, ...rest } = opts ?? {};
+	return new Promise<ReadableSubprocess>((res, rej) => {
+		if (opts?.signal?.aborted)
+			return rej(new AbortError(cmd, "Early signal abort"));
 
-			const proc = Bun.spawn({
-				cmd: cmd.split(" "),
-				onExit(subprocess, exitCode, signalCode, error) {
-					onExit?.(subprocess, exitCode, signalCode, error);
-					if (error != null) return rej(error);
-					rej(new AbortError(cmd, "Spawned process exiting early", proc));
-				},
-				...(rest as Opts & PipedStdout),
-			});
-			const abort = (reason: string) => rej(new AbortError(cmd, reason, proc));
+		const proc = Bun.spawn({
+			cmd: cmd.split(" "),
+			stderr: "pipe",
+			stdout: "pipe",
+			...rest,
+		}) as ReadableSubprocess;
 
-			const reader = proc.stdout.getReader();
-			const readLine = () => {
-				if (signal?.aborted) {
-					proc.kill();
-					return abort("Abort mid line reading");
-				}
+		let final = false;
+		const abort = (reason: string) =>
+			// biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
+			(final = true) && rej(new AbortError(cmd, reason, proc));
+		// biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
+		const resolve = (obj: any) => (final = true) && res(obj);
 
-				if (proc.killed)
-					return abort(
-						"Spawned process exiting early while trying to read stdout",
-					);
+		proc.exited.then((code) => {
+			abort(`Spawned process exiting early with code: ${code}`);
+		});
 
-				reader
-					.read()
-					.then((data) => {
-						// NOTE: Since this rejects earliest, we are delegating the
-						// closing of the process to onExit instead...
-						// if (data.done) return abort("stdout is done/closed");
-						if (data.done) return;
+		const readLine = (reader: ReadableStreamDefaultReader) => {
+			if (final) return;
 
-						if (readyCheck(Buffer.from(data.value).toString("utf8"))) {
-							reader.releaseLock();
-							return res(proc);
-						}
+			if (signal?.aborted) {
+				proc.kill();
+				return abort("Abort mid line reading");
+			}
 
-						readLine();
-					})
-					.catch((e) => {
-						rej(e);
-					});
-			};
+			if (proc.killed)
+				return abort(
+					"Spawned process exiting early while trying to read stdout",
+				);
 
-			readLine();
-		},
-	);
+			reader
+				.read()
+				.then((data) => {
+					// NOTE: Since this rejects earliest, we are delegating the
+					// closing of the process to onExit instead...
+					// if (data.done) return abort("stdout is done/closed");
+					if (data.done) return;
+
+					if (readyCheck(Buffer.from(data.value).toString("utf8"))) {
+						reader.releaseLock();
+						return resolve(proc);
+					}
+
+					readLine(reader);
+				})
+				.catch((e) => {
+					rej(e);
+				});
+		};
+
+		readLine(proc.stdout.getReader());
+		readLine(proc.stderr.getReader());
+	});
 }
