@@ -1,28 +1,11 @@
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
-import { type AMQPChannel, AMQPClient } from "@cloudamqp/amqp-client";
 import { MessagePackSerializer } from "@deweazer/serializer";
-import {
-	BunContainerOrchestrator,
-	spawnRabbitMQ,
-} from "@deweazer/spawn/container";
 import type { SendMailOptions } from "nodemailer";
 import { QUEUE_PREFIX } from "./broker";
 import { createEmailPusher } from "./pusher";
+import { RabbitMQ } from "./test/container";
 
-const mq = new BunContainerOrchestrator<{
-	client: AMQPClient;
-	channel: AMQPChannel;
-}>(spawnRabbitMQ.bind(null, "mq"), "deweazer.email.test.mq")
-	.onStart(async (vars) => {
-		vars.client = new AMQPClient("amqp://localhost");
-		await vars.client.connect();
-		vars.channel = await vars.client.channel();
-	})
-	.onStop(async (vars) => {
-		await vars.channel.close();
-		await vars.client.close();
-	})
-	.orchestrate();
+const mq = RabbitMQ.orchestrate();
 
 describe(createEmailPusher.name, async () => {
 	beforeEach(async () => {

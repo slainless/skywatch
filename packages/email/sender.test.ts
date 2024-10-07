@@ -1,52 +1,15 @@
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	mock,
-	spyOn,
-} from "bun:test";
-import { type AMQPChannel, AMQPClient } from "@cloudamqp/amqp-client";
+import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { createTransport, type SendMailOptions } from "nodemailer";
-import {
-	BunContainerOrchestrator,
-	spawnRabbitMQ,
-} from "@deweazer/spawn/container";
 import { createEmailSender, EmailSender } from "./sender";
 import { QUEUE_PREFIX } from "./broker";
 import { MessagePackSerializer } from "@deweazer/serializer";
-import { createProcess } from "@deweazer/spawn";
 import ky from "ky";
+import { MailHog, RabbitMQ } from "./test/container";
 
-const mq = new BunContainerOrchestrator<{
-	client: AMQPClient;
-	channel: AMQPChannel;
-}>(spawnRabbitMQ.bind(null, "mq"), "deweazer.email.test.mq")
-	.onStart(async (vars) => {
-		vars.client = new AMQPClient("amqp://localhost");
-		await vars.client.connect();
-		vars.channel = await vars.client.channel();
-	})
-	.onStop(async (vars) => {
-		await vars.channel.close();
-		await vars.client.close();
-	})
-	.orchestrate();
+const mq = RabbitMQ.orchestrate();
+const mh = MailHog.orchestrate();
 
 const mailhog = ky.create({ prefixUrl: "http://localhost:8025/api/v1" });
-const mh = new BunContainerOrchestrator(async () => {
-	const id = crypto.randomUUID();
-	const container = await createProcess(
-		`docker run --rm --name ${id} -p 1025:1025 -p 8025:8025 mailhog/mailhog`,
-		(line) => {
-			return line.indexOf("[SMTP] Binding to address") !== -1;
-		},
-	);
-	await Bun.sleep(100);
-	return { containerID: id, container };
-}, "deweazer.email.test.mailhog").orchestrate();
-
 const serializer = MessagePackSerializer.serializer;
 const createMail = <T extends SendMailOptions>(mail: T) => mail;
 
