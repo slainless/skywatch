@@ -4,15 +4,17 @@
 	"scripts": {
 		"codegen": "bun run typegen",
 		"typegen": "bunx typia generate --input guard/template --output guard/artifact --project tsconfig.json",
-		"test:container:mq": "docker run --rm --hostname mq --name deweazer.email.test.mq -p 5672:5672 rabbitmq"
+		"test:container:mq": "docker run --rm --hostname mq --name deweazer.email.test.mq -p 5672:5672 rabbitmq",
+		"test:container:mailhog": "docker run --rm --name deweazer.email.test.mailhog -p 1025:1025 -p 8025:8025 mailhog/mailhog"
 	},
 	"devDependencies": {
 		"@deweazer/config": "*",
-		"@deweazer/spawn": "*",
 		"@deweazer/serializer": "*",
+		"@deweazer/spawn": "*",
 		"@types/amqplib": "^0.10.5",
 		"@types/bun": "latest",
-		"@types/nodemailer": "^6.4.16"
+		"@types/nodemailer": "^6.4.16",
+		"ky": "^1.7.2"
 	},
 	"peerDependencies": {
 		"typescript": "^5.0.0",
