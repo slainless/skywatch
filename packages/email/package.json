@@ -1,0 +1,25 @@
+{
+	"name": "@deweazer/broker",
+	"type": "module",
+	"scripts": {
+		"codegen": "bun run typegen",
+		"typegen": "bunx typia generate --input guard/template --output guard/artifact --project tsconfig.json"
+	},
+	"devDependencies": {
+		"@deweazer/config": "*",
+		"@deweazer/spawn": "*",
+		"@deweazer/serializer": "*",
+		"@types/amqplib": "^0.10.5",
+		"@types/bun": "latest",
+		"@types/nodemailer": "^6.4.16"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"amqplib": "^0.10.4",
+		"async-mutex": "^0.5.0",
+		"nodemailer": "^6.9.15",
+		"typia": "^6.11.1"
+	}
+}
