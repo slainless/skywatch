@@ -1,14 +1,14 @@
-import type { SendMailOptions, Transporter } from "nodemailer";
-import { QUEUE_PREFIX } from "./broker";
-import { MessagePackSerializer } from "@deweazer/serializer";
-import { Mutex } from "async-mutex";
-import { assertMail } from "./guard/artifact/message";
 import type {
 	AMQPChannel,
 	AMQPConsumer,
 	AMQPMessage,
 	AMQPQueue,
 } from "@cloudamqp/amqp-client";
+import { MessagePackSerializer } from "@deweazer/serializer";
+import { Mutex } from "async-mutex";
+import type { SendMailOptions, Transporter } from "nodemailer";
+import { QUEUE_PREFIX } from "./broker";
+import { assertMail } from "./guard/artifact/message";
 
 export class EmailSender {
 	private consumer: AMQPConsumer | null = null;

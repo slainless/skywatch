@@ -1,7 +1,7 @@
 import type {
+	NormalizedQueryOptions,
 	QueryLocation,
 	QueryOptions,
-	NormalizedQueryOptions,
 	SampleUsed,
 } from "./query.js";
 import type { ComposableWeatherData } from "./weather.js";

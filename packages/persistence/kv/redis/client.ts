@@ -1,6 +1,6 @@
+import { MessagePackSerializer, type Serializer } from "@deweazer/serializer";
+import { type RedisClientType, commandOptions } from "redis";
 import type { KV } from "../../index.js";
-import { commandOptions, type RedisClientType } from "redis";
-import { type Serializer, MessagePackSerializer } from "@deweazer/serializer";
 
 export const InvalidKeyTypeError = new TypeError("Key must be a string/number");
 export const NullValueError = new TypeError(

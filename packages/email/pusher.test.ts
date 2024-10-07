@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
-import { createEmailPusher } from "./pusher";
-import { QUEUE_PREFIX } from "./broker";
+import { type AMQPChannel, AMQPClient } from "@cloudamqp/amqp-client";
+import { MessagePackSerializer } from "@deweazer/serializer";
 import {
 	BunContainerOrchestrator,
 	spawnRabbitMQ,
 } from "@deweazer/spawn/container";
-import { AMQPClient, type AMQPChannel } from "@cloudamqp/amqp-client";
 import type { SendMailOptions } from "nodemailer";
-import { MessagePackSerializer } from "@deweazer/serializer";
+import { QUEUE_PREFIX } from "./broker";
+import { createEmailPusher } from "./pusher";
 
 const mq = new BunContainerOrchestrator<{
 	client: AMQPClient;

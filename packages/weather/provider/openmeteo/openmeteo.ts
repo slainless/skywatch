@@ -1,8 +1,8 @@
 import { WeatherAPIMismatchError, WeatherQueryError } from "../../error.js";
 import { assertHttpResponse } from "../../guard/artifact/openmeteo.js";
 import {
-	Provider,
 	type NormalizedQueryOptions,
+	Provider,
 	type QueryLocation,
 	type QueryOptions,
 	type WeatherResult,

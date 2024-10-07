@@ -1,23 +1,23 @@
 import { describe, expect, it } from "bun:test";
 import {
-	buildUrl,
-	mapResponseToResult,
-	OPENMETEO_API_BASE_URL,
-	OpenMeteoProvider,
-} from "./openmeteo.js";
-import {
 	DEFAULT_FORECAST_DAYS,
 	DEFAULT_FORECAST_HOURS,
 	DEFAULT_PAST_DAYS,
 	DEFAULT_PAST_HOURS,
-	Provider,
 	type Point3D,
+	Provider,
 	type QueryLocation,
 	type QueryOptions,
 } from "../../index.js";
-import { OpenMeteoParameters } from "./schema.js";
-import exampleResponse from "./example.response.json" assert { type: "json" };
 import exampleExpected from "./example.expected.json" assert { type: "json" };
+import exampleResponse from "./example.response.json" assert { type: "json" };
+import {
+	OPENMETEO_API_BASE_URL,
+	OpenMeteoProvider,
+	buildUrl,
+	mapResponseToResult,
+} from "./openmeteo.js";
+import { OpenMeteoParameters } from "./schema.js";
 
 describe(buildUrl.name, () => {
 	const point = (x: number, y: number) =>

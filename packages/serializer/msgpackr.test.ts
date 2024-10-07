@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { MessagePackSerializer } from "./msgpackr.js";
 import example from "./test/example.expected.json" assert { type: "json" };
 

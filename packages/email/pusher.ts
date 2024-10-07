@@ -1,7 +1,7 @@
-import { MessagePackSerializer } from "@deweazer/serializer";
-import { QUEUE_PREFIX } from "./broker";
-import type { SendMailOptions } from "nodemailer";
 import type { AMQPChannel, AMQPQueue } from "@cloudamqp/amqp-client";
+import { MessagePackSerializer } from "@deweazer/serializer";
+import type { SendMailOptions } from "nodemailer";
+import { QUEUE_PREFIX } from "./broker";
 
 export class EmailPusher {
 	constructor(

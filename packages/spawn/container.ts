@@ -1,5 +1,5 @@
+import { afterAll, beforeAll } from "bun:test";
 import { $, ShellError, type Subprocess } from "bun";
-import { beforeAll, afterAll } from "bun:test";
 import { createProcess } from "./process";
 
 export async function stopContainer(container: Subprocess<any>, id: string) {

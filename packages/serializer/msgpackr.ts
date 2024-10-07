@@ -1,5 +1,5 @@
-import type { Serializer } from "./index.js";
 import { pack, unpack } from "msgpackr";
+import type { Serializer } from "./index.js";
 
 export class MessagePackSerializer implements Serializer {
 	static serializer = new MessagePackSerializer();

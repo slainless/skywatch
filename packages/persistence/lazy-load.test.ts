@@ -1,12 +1,12 @@
-import { describe, it, expect, spyOn, afterEach, mock } from "bun:test";
-import { LazyLoadPersistence } from "./lazy-load";
+import { afterEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { BunContainerOrchestrator } from "@deweazer/spawn/container";
+import { LazyLoadPersistence } from "./lazy-load";
 import { runMongoContainer, runRedisContainer } from "./test/container";
 
 import { MongoClient } from "mongodb";
 import { MongoKV } from "./kv/mongodb/client.js";
 
-import { createClient, type RedisClientType } from "redis";
+import { type RedisClientType, createClient } from "redis";
 import { RedisKV } from "./kv/redis/client.js";
 
 const mongo = new BunContainerOrchestrator<{

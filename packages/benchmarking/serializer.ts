@@ -1,9 +1,9 @@
-import { run, bench, group } from "mitata";
-import { deserialize, serialize } from "seroval";
-import example from "./big_json/large-file.json" assert { type: "json" };
-import { pack, unpack } from "msgpackr";
 import { BSON } from "bson";
-import { sia, desia } from "sializer";
+import { bench, group, run } from "mitata";
+import { pack, unpack } from "msgpackr";
+import { deserialize, serialize } from "seroval";
+import { desia, sia } from "sializer";
+import example from "./big_json/large-file.json" assert { type: "json" };
 
 group(() => {
 	bench("E2E: seroval", () => deserialize(serialize(example)));

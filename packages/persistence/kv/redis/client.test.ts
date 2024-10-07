@@ -1,10 +1,10 @@
-import { describe, it, expect } from "bun:test";
-import { InvalidKeyTypeError, NullValueError, RedisKV } from "./client.js";
+import { describe, expect, it } from "bun:test";
+import { BunContainerOrchestrator } from "@deweazer/spawn/container";
 import type { RedisClientType } from "redis";
 import { createClient } from "redis";
-import example from "../../test/example.expected.json" assert { type: "json" };
 import { runRedisContainer } from "../../test/container.js";
-import { BunContainerOrchestrator } from "@deweazer/spawn/container";
+import example from "../../test/example.expected.json" assert { type: "json" };
+import { InvalidKeyTypeError, NullValueError, RedisKV } from "./client.js";
 
 const redis = new BunContainerOrchestrator<{ client: RedisClientType }>(
 	runRedisContainer,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { mapCurrentSample, mapDailySample, mapHourlySample } from "./conv.js";
-import exampleResponse from "./example.response.json" assert { type: "json" };
 import exampleExpected from "./example.expected.json" assert { type: "json" };
+import exampleResponse from "./example.response.json" assert { type: "json" };
 
 describe(mapCurrentSample.name, () => {
 	it("should correctly convert from openmeteo format to SamplesWithUnit.Current", () => {

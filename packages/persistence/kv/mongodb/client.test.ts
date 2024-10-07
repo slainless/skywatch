@@ -1,10 +1,10 @@
-import { describe, it, beforeAll, afterAll, expect } from "bun:test";
-import { InvalidKeyTypeError, MongoKV, NullValueError } from "./client.js";
-import type { Subprocess } from "bun";
-import example from "../../test/example.expected.json" assert { type: "json" };
-import { type Collection, MongoClient } from "mongodb";
+import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import { BunContainerOrchestrator } from "@deweazer/spawn/container";
+import type { Subprocess } from "bun";
+import { type Collection, MongoClient } from "mongodb";
 import { runMongoContainer } from "../../test/container.js";
+import example from "../../test/example.expected.json" assert { type: "json" };
+import { InvalidKeyTypeError, MongoKV, NullValueError } from "./client.js";
 
 const idField = "key";
 const mongo = new BunContainerOrchestrator<{
