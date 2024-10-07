@@ -24,7 +24,7 @@ export async function spawnRabbitMQ(hostname: string) {
 		},
 	);
 	await Bun.sleep(100);
-	return { id, container };
+	return { containerID: id, container };
 }
 
 export async function isContainerRunning(name: string) {
