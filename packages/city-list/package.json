@@ -1,0 +1,21 @@
+{
+	"name": "@deweazer/city-list",
+	"author": {
+		"email": "aiman.fauzy.55@gmail.com",
+		"name": "Aiman Fauzy",
+		"url": "https://github.com/slainless"
+	},
+	"repository": {
+		"url": "https://github.com/slainless/deweazer"
+	},
+	"license": "MIT",
+	"module": "index.ts",
+	"type": "module",
+	"devDependencies": {
+		"@types/bun": "latest",
+		"@deweazer/common": "*"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	}
+}

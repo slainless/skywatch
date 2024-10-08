@@ -1,4 +1,4 @@
-import type { Point3D } from "./weather.js";
+import type { Point3D } from "@deweazer/common";
 
 export type QueryLocation = Point3D;
 

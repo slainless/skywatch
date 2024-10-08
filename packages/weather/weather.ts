@@ -1,8 +1,4 @@
-export interface Point3D {
-	latitude: number;
-	longitude: number;
-	altitude?: number;
-}
+import type { QueryLocation } from "./query";
 
 export namespace WMOCode {
 	export enum WorldWide {
@@ -115,7 +111,7 @@ export interface WeatherData {
 	current?: SamplesWithUnit.Current;
 	hourly?: SamplesWithUnit.Hourly;
 	daily?: SamplesWithUnit.Daily;
-	location: Point3D;
+	location: QueryLocation;
 	timezone: string;
 	timezoneAbbr: string;
 }
