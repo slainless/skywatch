@@ -3,7 +3,8 @@
 	"type": "module",
 	"scripts": {
 		"test:container:redis": "docker run --rm --name deweazer.persistence.test.redis -p 6379:6379 redis",
-		"test:container:mongo": "docker run --rm --name deweazer.persistence.test.mongo -p 27017:27017 mongo"
+		"test:container:mongo": "docker run --rm --name deweazer.persistence.test.mongo -p 27017:27017 mongo",
+		"test:container": "bunx concurrently \\\"bun run test:container:redis\\\" \\\"bun run test:container:mongo\\\""
 	},
 	"devDependencies": {
 		"@deweazer/config": "*",
