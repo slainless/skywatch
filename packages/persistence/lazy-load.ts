@@ -1,20 +1,25 @@
 import type { KV } from "./kv";
-import type { GetResult, Persistence } from "./persistence";
+import type { GetResult, HasResult, Persistence } from "./persistence";
 
 export class LazyLoadPersistence implements Persistence {
-	constructor(
-		private cache: KV,
-		private storage: KV,
-	) {}
+	#cache: KV;
+	#storage: KV;
+
+	constructor(cache: KV, storage: KV) {
+		this.#cache = cache;
+		this.#storage = storage;
+	}
 
 	async get(key: any): Promise<GetResult> {
-		const cacheResult = await this.cache.get(key);
+		const cacheResult = await this.#cache.get(key);
 		if (cacheResult != null)
 			return { cacheHit: true, storageHit: false, value: cacheResult };
 
-		const storageResult = await this.storage.get(key);
+		const storageResult = await this.#storage.get(key);
 		if (storageResult != null) {
-			this.cache.set(key, storageResult);
+			// setting value asynchronously...
+			// we are returning early without waiting for cache to be updated first
+			this.#cache.set(key, storageResult);
 			return { cacheHit: false, storageHit: true, value: storageResult };
 		}
 
@@ -23,14 +28,36 @@ export class LazyLoadPersistence implements Persistence {
 
 	async set(key: any, value: any): Promise<void> {
 		return await void Promise.all([
-			this.cache.set(key, value),
-			this.storage.set(key, value),
+			this.#cache.set(key, value),
+			this.#storage.set(key, value),
 		]);
 	}
-	setToCache(key: any, value: any): Promise<void> {
-		return this.cache.set(key, value);
+
+	async has(key: any): Promise<HasResult> {
+		const cacheResult = await this.#cache.has(key);
+		if (cacheResult) return { cacheHit: true, storageHit: false };
+
+		const storageResult = await this.#storage.has(key);
+		if (storageResult)
+			// setting value asynchronously...
+			// we are returning early without waiting for cache to be updated first
+			this.#storage.get(key).then((value) => this.#cache.set(key, value));
+
+		return { cacheHit: false, storageHit: storageResult };
 	}
-	setToStorage(key: any, value: any): Promise<void> {
-		return this.storage.set(key, value);
+
+	async delete(key: any): Promise<void> {
+		return await void Promise.all([
+			this.#storage.delete(key),
+			this.#cache.delete(key),
+		]);
+	}
+
+	cache(): KV {
+		return this.#cache;
+	}
+
+	storage(): KV {
+		return this.#storage;
 	}
 }
