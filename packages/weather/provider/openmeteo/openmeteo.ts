@@ -93,9 +93,27 @@ export function mapResponseToResult(
 	result.timezone = response.timezone;
 	result.timezoneAbbr = response.timezone_abbreviation;
 
+	{
+		// open meteo sampling rate is 0.09Hz
+		// so we are picking sample date from nearest quarter hour
+		result.sampleInterval = 900;
+		const now = new Date();
+		const sampleDate = nearestQuarterHour(now);
+		result.receivedTimestamp = now.getTime();
+		result.sampleTimestamp = sampleDate.getTime();
+	}
+
 	if ("current" in response) result.current = mapCurrentSample(response);
 	if ("hourly" in response) result.hourly = mapHourlySample(response);
 	if ("daily" in response) result.daily = mapDailySample(response);
 
 	return result;
+}
+
+function nearestQuarterHour(date: Date): Date {
+	const received = date.getMinutes();
+	const nearest = new Date();
+	for (const minutes of [45, 30, 15, 0])
+		if (received >= minutes) nearest.setMinutes(minutes);
+	return nearest;
 }

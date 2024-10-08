@@ -114,6 +114,10 @@ export interface WeatherData {
 	location: QueryLocation;
 	timezone: string;
 	timezoneAbbr: string;
+
+	receivedTimestamp: number;
+	sampleTimestamp: number;
+	sampleInterval: number;
 }
 
 export type WeatherDataComposition = "current" | "hourly" | "daily";

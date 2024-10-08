@@ -1,4 +1,11 @@
-import { describe, expect, it } from "bun:test";
+import {
+	afterAll,
+	beforeAll,
+	describe,
+	expect,
+	it,
+	setSystemTime,
+} from "bun:test";
 import {
 	DEFAULT_FORECAST_DAYS,
 	DEFAULT_FORECAST_HOURS,
@@ -103,6 +110,18 @@ describe(buildUrl.name, () => {
 });
 
 describe(mapResponseToResult.name, () => {
+	const receivedTime = exampleExpected.receivedTimestamp;
+	const receivedDate = new Date();
+	receivedDate.setTime(receivedTime);
+
+	beforeAll(() => {
+		setSystemTime(receivedDate);
+	});
+
+	afterAll(() => {
+		setSystemTime();
+	});
+
 	it("should map full response to unified WeatherResult", () => {
 		expect(mapResponseToResult(exampleResponse)).toEqual(
 			exampleExpected as any,
