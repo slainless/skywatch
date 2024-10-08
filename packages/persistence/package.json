@@ -1,5 +1,14 @@
 {
 	"name": "@deweazer/persistence",
+	"author": {
+		"email": "aiman.fauzy.55@gmail.com",
+		"name": "Aiman Fauzy",
+		"url": "https://github.com/slainless"
+	},
+	"repository": {
+		"url": "https://github.com/slainless/deweazer"
+	},
+	"license": "MIT",
 	"type": "module",
 	"scripts": {
 		"test:container:redis": "docker run --rm --name deweazer.persistence.test.redis -p 6379:6379 redis",

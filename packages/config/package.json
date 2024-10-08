@@ -1,8 +1,16 @@
 {
 	"name": "@deweazer/config",
+	"author": {
+		"email": "aiman.fauzy.55@gmail.com",
+		"name": "Aiman Fauzy",
+		"url": "https://github.com/slainless"
+	},
+	"repository": {
+		"url": "https://github.com/slainless/deweazer"
+	},
+	"license": "MIT",
 	"version": "0.0.0",
 	"private": true,
-	"license": "MIT",
 	"publishConfig": {
 		"access": "public"
 	},

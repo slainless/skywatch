@@ -1,5 +1,14 @@
 {
 	"name": "@deweazer/common",
+	"author": {
+		"email": "aiman.fauzy.55@gmail.com",
+		"name": "Aiman Fauzy",
+		"url": "https://github.com/slainless"
+	},
+	"repository": {
+		"url": "https://github.com/slainless/deweazer"
+	},
+	"license": "MIT",
 	"module": "index.ts",
 	"type": "module",
 	"devDependencies": {
