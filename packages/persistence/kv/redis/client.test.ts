@@ -1,9 +1,13 @@
-import { describe, expect, it } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 import { Redis } from "../../test/container.js";
 import example from "../../test/example.expected.json" assert { type: "json" };
 import { InvalidKeyTypeError, NullValueError, RedisKV } from "./client.js";
 
 const redis = Redis().orchestrate();
+
+beforeEach(async () => {
+	await redis.client.flushAll();
+});
 
 describe(RedisKV.name, () => {
 	it("should be able to set & get value", async () => {
@@ -113,5 +117,74 @@ describe(RedisKV.name, () => {
 		await kv.delete("b");
 		await kv.delete("b");
 		expect(await kv.has("b")).toBe(false);
+	});
+
+	it("should be able to get many values", async () => {
+		const kv = new RedisKV(redis.client);
+
+		await Promise.all([
+			kv.set("a", 1),
+			kv.set("d", 2),
+			kv.set("f", 3),
+			kv.set("h", 4),
+			kv.set("i", 5),
+			kv.set("j", 6),
+		]);
+
+		expect(
+			await kv.bulkGet(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]),
+		).toEqual([1, null, null, 2, null, 3, null, 4, 5, 6]);
+		expect(await kv.bulkGet([])).toEqual([]);
+		const bulk = Array(10000).fill("x");
+		bulk[1234] = "i";
+
+		const expected = Array(10000).fill(null);
+		expected[1234] = 5;
+		expect(await kv.bulkGet(bulk)).toEqual(expected);
+	});
+
+	it("should be able to set many values", async () => {
+		const kv = new RedisKV(redis.client);
+
+		const bulk = Array(100)
+			.fill(true)
+			.map((_, index) => [`key-${index}`, index] as any);
+
+		await kv.bulkSet(bulk);
+		expect(await kv.bulkGet(bulk.map((v) => v[0]))).toEqual(
+			bulk.map((v) => v[1]),
+		);
+	});
+
+	it("should be able to delete many values", async () => {
+		const kv = new RedisKV(redis.client);
+
+		const bulk = Array(100)
+			.fill(true)
+			.map((_, index) => [`key-${index}`, index] as any);
+		const keys = bulk.map((v) => v[0]);
+
+		await kv.bulkSet(bulk);
+		expect(await kv.bulkGet(keys)).toEqual(bulk.map((v) => v[1]));
+		await kv.bulkDelete(keys);
+		expect(await kv.bulkGet(keys)).toEqual(Array(100).fill(null));
+	});
+
+	it("should be able to lookup many values", async () => {
+		const kv = new RedisKV(redis.client);
+
+		const bulk = Array(100)
+			.fill(true)
+			.map((_, index) => [`key-${index}`, index] as any);
+		const keys = bulk.map((v) => v[0]);
+
+		await kv.bulkSet(bulk);
+		expect(await kv.bulkHas([...keys, "SHOULD_BE_NULL", ...keys])).toEqual([
+			...Array(100).fill(true),
+			false,
+			...Array(100).fill(true),
+		]);
+		await kv.bulkDelete(keys);
+		expect(await kv.bulkHas(keys)).toEqual(Array(100).fill(false));
 	});
 });

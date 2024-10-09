@@ -18,6 +18,10 @@ const helloWorld = "Hello, World!";
 const returned = <T extends Mock<any>>(spied: T, index: number) =>
 	spied.mock.results[0]?.value;
 
+beforeEach(async () => {
+	await mongo.collection.deleteMany({});
+});
+
 describe(LazyLoadPersistence.name, () => {
 	beforeEach(async () => {
 		mock.restore();

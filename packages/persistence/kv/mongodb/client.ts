@@ -1,5 +1,10 @@
-import type { Collection } from "mongodb";
-import type { KV } from "../../index.js";
+import type {
+	BulkWriteResult,
+	Collection,
+	DeleteResult,
+	MongoClient,
+} from "mongodb";
+import type { KV, KVTuple } from "../../index.js";
 
 export const UnacknowledgedOperationError = new Error(
 	"Unacknowledged operation",
@@ -24,6 +29,7 @@ export interface MongoKVOptions {
  */
 export class MongoKV implements KV {
 	constructor(
+		private client: MongoClient,
 		/**
 		 * Setup the collection before using this driver:
 		 * - Set unique index for `options.idField`
@@ -44,7 +50,7 @@ export class MongoKV implements KV {
 	get(key: any, isRaw?: false): Promise<any>;
 	get(key: any, isRaw: true): Promise<Buffer | null>;
 	async get(key: any, isRaw?: boolean): Promise<any> {
-		MongoKV.assertsKey(key);
+		MongoKV.assertKey(key);
 
 		if (isRaw)
 			throw new Error("mongodb client doesn't support returning raw data");
@@ -61,8 +67,8 @@ export class MongoKV implements KV {
 	}
 
 	async set(key: any, value: any): Promise<void> {
-		MongoKV.assertsKey(key);
-		MongoKV.assertsNotNull(value);
+		MongoKV.assertKey(key);
+		MongoKV.assertNotNull(value);
 
 		const result = await this.collection.updateOne(
 			{ [this.options.idField]: key },
@@ -75,7 +81,7 @@ export class MongoKV implements KV {
 	}
 
 	async delete(key: any): Promise<void> {
-		MongoKV.assertsKey(key);
+		MongoKV.assertKey(key);
 
 		const result = await this.collection.deleteOne({
 			[this.options.idField]: key,
@@ -85,7 +91,7 @@ export class MongoKV implements KV {
 	}
 
 	async has(key: any): Promise<boolean> {
-		MongoKV.assertsKey(key);
+		MongoKV.assertKey(key);
 
 		return (
 			(await this.collection.countDocuments({ [this.options.idField]: key })) >
@@ -93,7 +99,91 @@ export class MongoKV implements KV {
 		);
 	}
 
-	static assertsKey(key: any): asserts key is number | string {
+	bulkGet(keys: any[], isRaw?: false): Promise<Array<any | null>>;
+	bulkGet(keys: any[], isRaw: true): Promise<Array<Buffer | null>>;
+	async bulkGet(keys: any[], isRaw?: boolean): Promise<any[]> {
+		if (keys.length === 0) return [];
+		MongoKV.assertKeys(keys);
+
+		if (isRaw)
+			throw new Error("mongodb client doesn't support returning raw data");
+
+		const result: Record<string, any> = await this.collection
+			.find({
+				$or: keys.map((key) => ({
+					[this.options.idField]: key,
+				})),
+			})
+			.toArray()
+			.then((result) =>
+				Object.fromEntries(
+					result.map((item) => [item[this.options.idField], item]),
+				),
+			);
+
+		for (const key in result)
+			if ("value" in result[key] === false) {
+				// delete all wrong formatted data
+				result[key] = null;
+				this.delete(key);
+			} else result[key] = result[key].value;
+
+		return keys.map((key) => result[key] ?? null);
+	}
+
+	async bulkSet(kvTuples: KVTuple[]): Promise<void> {
+		if (kvTuples.length === 0) return;
+		MongoKV.assertKVTuples(kvTuples);
+
+		const session = await this.client.startSession();
+
+		try {
+			let result: BulkWriteResult;
+			await session.withTransaction(async () => {
+				result = await this.collection.bulkWrite(
+					kvTuples.map(([key, value]) => ({
+						updateOne: {
+							filter: { [this.options.idField]: key },
+							update: { $set: { value } },
+							upsert: true,
+						},
+					})),
+				);
+			});
+
+			return;
+		} catch (e) {
+			await session.endSession();
+			throw e;
+		}
+	}
+
+	async bulkDelete(keys: any[]): Promise<void> {
+		if (keys.length === 0) return;
+		MongoKV.assertKeys(keys);
+
+		const session = await this.client.startSession();
+
+		try {
+			let result: DeleteResult;
+			await session.withTransaction(async () => {
+				result = await this.collection.deleteMany({
+					$or: keys.map((key) => ({ [this.options.idField]: key })),
+				});
+			});
+
+			return;
+		} catch (e) {
+			await session.endSession();
+			throw e;
+		}
+	}
+
+	async bulkHas(keys: any[]): Promise<boolean[]> {
+		throw new Error("Not implemented yet!");
+	}
+
+	static assertKey(key: any): asserts key is number | string {
 		switch (typeof key) {
 			case "number":
 			case "string":
@@ -103,7 +193,20 @@ export class MongoKV implements KV {
 		}
 	}
 
-	static assertsNotNull(value: any): asserts value is NonNullable<any> {
+	static assertKeys(keys: any[]): asserts keys is string[] {
+		for (const key of keys) MongoKV.assertKey(key);
+	}
+
+	static assertNotNull(value: any): asserts value is NonNullable<any> {
 		if (value == null) throw NullValueError;
+	}
+
+	static assertKVTuples(
+		kvTuples: KVTuple[],
+	): asserts kvTuples is [any, NonNullable<any>][] {
+		for (const [key, value] of kvTuples) {
+			MongoKV.assertKey(key);
+			MongoKV.assertNotNull(value);
+		}
 	}
 }

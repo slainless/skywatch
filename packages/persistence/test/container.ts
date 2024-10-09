@@ -45,7 +45,9 @@ export const Mongo = () =>
 			vars.collection = vars.client.db("test").collection("kv");
 			await vars.collection.createIndex(vars.key, { unique: true });
 
-			vars.kv = new MongoKV(vars.collection, { idField: vars.key });
+			vars.kv = new MongoKV(vars.client, vars.collection, {
+				idField: vars.key,
+			});
 		})
 		.onStop(async (vars) => {
 			await vars.client.close();
