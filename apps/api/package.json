@@ -8,12 +8,12 @@
 	"repository": {
 		"url": "https://github.com/slainless/deweazer"
 	},
+	"scripts": {
+		"typegen": "bunx typia generate --input guard/template --output guard/artifact --project tsconfig.json"
+	},
 	"license": "MIT",
 	"type": "module",
 	"devDependencies": {
-		"@deweazer/common": "*",
-		"@deweazer/persistence": "*",
-		"@deweazer/weather": "*",
 		"@types/bun": "latest",
 		"@types/express": "^5.0.0"
 	},
@@ -21,7 +21,12 @@
 		"typescript": "^5.0.0"
 	},
 	"dependencies": {
+		"@deweazer/city-list": "*",
+		"@deweazer/common": "*",
+		"@deweazer/persistence": "*",
+		"@deweazer/weather": "*",
 		"express": "^4.21.0",
-		"pino": "^9.4.0"
+		"pino": "^9.4.0",
+		"typia": "^6.11.1"
 	}
 }
