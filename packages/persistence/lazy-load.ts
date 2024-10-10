@@ -53,6 +53,54 @@ export class LazyLoadPersistence implements Persistence {
 		]);
 	}
 
+	async bulkGet(keys: any[]): Promise<Array<GetResult>> {
+		const cacheMiss: any[] = [];
+		const result = await this.#cache.bulkGet(keys).then(
+			(caches) =>
+				Object.fromEntries(
+					caches.map((cache, index) => {
+						const result: GetResult = {
+							cacheHit: true,
+							storageHit: false,
+							value: cache,
+						};
+
+						if (cache == null) {
+							result.cacheHit = false;
+							cacheMiss.push(keys[index]);
+						}
+
+						return [keys[index], result];
+					}),
+				) as Record<any, GetResult>,
+		);
+
+		if (cacheMiss.length < 1) return keys.map((key) => result[key]!);
+
+		{
+			const storageResult = await this.#storage.bulkGet(cacheMiss);
+			const storageHit: any[] = [];
+			for (const index in cacheMiss) {
+				const missedKey = cacheMiss[index];
+				const finalResult = result[missedKey]!;
+				const storageValue = storageResult[index];
+
+				if (storageValue != null) {
+					finalResult.storageHit = true;
+					finalResult.value = storageValue;
+					storageHit.push([missedKey, storageValue]);
+				}
+			}
+
+			if (storageHit.length > 0)
+				// setting value asynchronously...
+				// we are returning early without waiting for cache to be updated first
+				this.#cache.bulkSet(storageHit);
+		}
+
+		return keys.map((key) => result[key]!);
+	}
+
 	cache(): KV {
 		return this.#cache;
 	}

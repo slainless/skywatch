@@ -10,6 +10,7 @@ import {
 } from "bun:test";
 import { LazyLoadPersistence } from "./lazy-load";
 import { Mongo, Redis } from "./test/container";
+import type { GetResult } from "./persistence";
 
 const redis = Redis().orchestrate();
 const mongo = Mongo().orchestrate();
@@ -265,6 +266,188 @@ describe(LazyLoadPersistence.name, () => {
 
 			expect(redisDeleteSpy).toBeCalledTimes(1);
 			expect(mongoDeleteSpy).toBeCalledTimes(1);
+		});
+	});
+
+	describe(LazyLoadPersistence.prototype.bulkGet.name, () => {
+		it("should return immediately on cache hit", async () => {
+			const persistence = new LazyLoadPersistence(redis.kv, mongo.kv);
+
+			const bulk = Array(1000)
+				.fill(0)
+				.map((_, index) => [`cache-hit-${index}`, index] as any);
+			await redis.kv.bulkSet(bulk);
+			const redisGetSpy = spyOn(redis.kv, "bulkGet");
+			const mongoGetSpy = spyOn(mongo.kv, "bulkGet");
+
+			expect(await persistence.bulkGet(bulk.map((v) => v[0]))).toEqual(
+				bulk.map((v) => ({
+					cacheHit: true,
+					storageHit: false,
+					value: v[1],
+				})),
+			);
+
+			expect(redisGetSpy).toHaveBeenLastCalledWith(bulk.map((v) => v[0]));
+			expect(returned(redisGetSpy, 0)).resolves.toEqual(bulk.map((v) => v[1]));
+
+			expect(redisGetSpy).toBeCalledTimes(1);
+			expect(mongoGetSpy).toBeCalledTimes(0);
+		});
+
+		it("should call storage on cache miss", async () => {
+			const persistence = new LazyLoadPersistence(redis.kv, mongo.kv);
+
+			const bulk = Array(1000)
+				.fill(0)
+				.map((_, index) => [`cache-hit-${index}`, index] as any);
+			await mongo.kv.bulkSet(bulk);
+			const redisGetSpy = spyOn(redis.kv, "bulkGet");
+			const mongoGetSpy = spyOn(mongo.kv, "bulkGet");
+
+			expect(await persistence.bulkGet(bulk.map((v) => v[0]))).toEqual(
+				bulk.map((v) => ({
+					cacheHit: false,
+					storageHit: true,
+					value: v[1],
+				})),
+			);
+
+			expect(redisGetSpy).toHaveBeenLastCalledWith(bulk.map((v) => v[0]));
+			expect(returned(redisGetSpy, 0)).resolves.toEqual(
+				Array(bulk.length).fill(null),
+			);
+			expect(mongoGetSpy).toHaveBeenLastCalledWith(bulk.map((v) => v[0]));
+			expect(returned(mongoGetSpy, 0)).resolves.toEqual(bulk.map((v) => v[1]));
+
+			expect(redisGetSpy).toBeCalledTimes(1);
+			expect(mongoGetSpy).toBeCalledTimes(1);
+		});
+
+		it("should populate cache on cache miss, storage hit", async () => {
+			const persistence = new LazyLoadPersistence(redis.kv, mongo.kv);
+
+			const bulkCacheHit = Array(500)
+				.fill(0)
+				.map((_, index) => [`cache-hit-${index}`, index] as any);
+			const bulkCacheMiss = Array(500)
+				.fill(0)
+				.map((_, index) => [`cache-miss-${index}`, index] as any);
+			const bulk = [...bulkCacheHit, ...bulkCacheMiss];
+
+			await redis.kv.bulkSet(bulkCacheHit);
+			await mongo.kv.bulkSet(bulkCacheMiss);
+			const redisGetSpy = spyOn(redis.kv, "bulkGet");
+			const mongoGetSpy = spyOn(mongo.kv, "bulkGet");
+			const redisSetSpy = spyOn(redis.kv, "bulkSet");
+
+			expect(await persistence.bulkGet(bulk.map((v) => v[0]))).toEqual(
+				bulk.map((v, i) => ({
+					cacheHit: i < bulkCacheHit.length,
+					storageHit: bulkCacheHit.length <= i,
+					value: v[1],
+				})),
+			);
+
+			expect(redisGetSpy).toBeCalledTimes(1);
+			expect(mongoGetSpy).toBeCalledTimes(1);
+
+			expect(redisGetSpy).toHaveBeenLastCalledWith(bulk.map((v) => v[0]));
+			expect(returned(redisGetSpy, 0)).resolves.toEqual(
+				bulk.map((v, i) => (i < bulkCacheHit.length ? v[1] : null)),
+			);
+
+			expect(mongoGetSpy).toHaveBeenLastCalledWith(
+				bulkCacheMiss.map((v) => v[0]),
+			);
+			expect(returned(mongoGetSpy, 0)).resolves.toEqual(
+				bulkCacheMiss.map((v) => v[1]),
+			);
+
+			await Bun.sleep(1000);
+			expect(redisSetSpy).toBeCalledTimes(1);
+			expect(redisSetSpy).lastCalledWith(bulkCacheMiss);
+		});
+
+		it("should populate cache on cache miss, partial storage hit", async () => {
+			const persistence = new LazyLoadPersistence(redis.kv, mongo.kv);
+
+			const bulkCacheHit = Array(10)
+				.fill(0)
+				.map((_, index) => [`cache-hit-${index}`, index] as any);
+			const bulkCacheMiss = Array(10)
+				.fill(0)
+				.map((_, index) => [`cache-miss-${index}`, index] as any);
+			const bulkStorageMiss = Array(10)
+				.fill(0)
+				.map((_, index) => [`storage-miss-${index}`, null] as any);
+			const bulk = [...bulkCacheHit, ...bulkCacheMiss, ...bulkStorageMiss];
+			const bulkMiss = [...bulkCacheMiss, ...bulkStorageMiss];
+
+			await redis.kv.bulkSet(bulkCacheHit);
+			await mongo.kv.bulkSet(bulkCacheMiss);
+			const redisGetSpy = spyOn(redis.kv, "bulkGet");
+			const mongoGetSpy = spyOn(mongo.kv, "bulkGet");
+			const redisSetSpy = spyOn(redis.kv, "bulkSet");
+
+			expect(await persistence.bulkGet(bulk.map((v) => v[0]))).toEqual(
+				bulk.map((v, i) => ({
+					cacheHit: i < bulkCacheHit.length,
+					storageHit:
+						bulkCacheHit.length <= i &&
+						i < bulkCacheHit.length + bulkCacheMiss.length,
+					value: v[1],
+				})),
+			);
+
+			expect(redisGetSpy).toBeCalledTimes(1);
+			expect(mongoGetSpy).toBeCalledTimes(1);
+
+			expect(redisGetSpy).toHaveBeenLastCalledWith(bulk.map((v) => v[0]));
+			expect(returned(redisGetSpy, 0)).resolves.toEqual(
+				bulk.map((v, i) => (i < bulkCacheHit.length ? v[1] : null)),
+			);
+
+			expect(mongoGetSpy).toHaveBeenLastCalledWith(bulkMiss.map((v) => v[0]));
+			expect(returned(mongoGetSpy, 0)).resolves.toEqual(
+				bulkMiss.map((v) => v[1]),
+			);
+
+			await Bun.sleep(1000);
+			expect(redisSetSpy).toBeCalledTimes(1);
+			expect(redisSetSpy).lastCalledWith(bulkCacheMiss);
+		});
+
+		it("should return null value on cache miss, storage miss", async () => {
+			const persistence = new LazyLoadPersistence(redis.kv, mongo.kv);
+
+			const bulk = Array(1000)
+				.fill(0)
+				.map((_, index) => [`all-miss-${index}`, index] as any);
+			const redisGetSpy = spyOn(redis.kv, "bulkGet");
+			const mongoGetSpy = spyOn(mongo.kv, "bulkGet");
+			const redisSetSpy = spyOn(redis.kv, "bulkSet");
+
+			expect(await persistence.bulkGet(bulk.map((v) => v[0]))).toEqual(
+				Array(1000).fill({
+					cacheHit: false,
+					storageHit: false,
+					value: null,
+				} satisfies GetResult),
+			);
+
+			expect(redisGetSpy).toHaveBeenLastCalledWith(bulk.map((v) => v[0]));
+			expect(returned(redisGetSpy, 0)).resolves.toEqual(
+				Array(bulk.length).fill(null),
+			);
+			expect(mongoGetSpy).toHaveBeenLastCalledWith(bulk.map((v) => v[0]));
+			expect(returned(mongoGetSpy, 0)).resolves.toEqual(
+				Array(bulk.length).fill(null),
+			);
+
+			expect(redisGetSpy).toBeCalledTimes(1);
+			expect(mongoGetSpy).toBeCalledTimes(1);
+			expect(redisSetSpy).toBeCalledTimes(0);
 		});
 	});
 });
