@@ -1,2 +1,2 @@
 export { GlobalCity } from "./enum";
-export { cities as Cities } from "./data";
+export { Cities, pointToCity } from "./data";
