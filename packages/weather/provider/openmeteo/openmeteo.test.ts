@@ -11,7 +11,6 @@ import {
 	DEFAULT_FORECAST_HOURS,
 	DEFAULT_PAST_DAYS,
 	DEFAULT_PAST_HOURS,
-	type Point3D,
 	Provider,
 	type QueryLocation,
 	type QueryOptions,
@@ -143,7 +142,7 @@ describe(mapResponseToResult.name, () => {
 
 describe(`${OpenMeteoProvider.name}.${OpenMeteoProvider.prototype.getWeathers.name}`, () => {
 	const point = (x: number, y: number) =>
-		({ latitude: y, longitude: x }) satisfies Point3D;
+		({ latitude: y, longitude: x }) satisfies QueryLocation;
 	it("should return full WeatherResult spec for full query options", async () => {
 		const provider = new OpenMeteoProvider();
 		const results = await provider.getWeathers([
