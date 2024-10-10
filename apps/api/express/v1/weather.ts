@@ -46,16 +46,22 @@ export class WeatherController extends Backend.Component {
 	sendResponse(
 		res: Response,
 		weathers: WeatherData[],
-		metadata: CacheMetadata,
+		metadata?: CacheMetadata | null,
 	): void {
-		res
-			.status(304)
-			.set("Etag", metadata.etag)
-			.set(
+		if (metadata != null)
+			res
+				.set("Etag", metadata.etag)
+				.set(
+					"Cache-Control",
+					`max-age=${metadata.maxAge}, stale-while-revalidate=${this.options.revalidateWindow}`,
+				);
+		else
+			res.set(
 				"Cache-Control",
-				`max-age=${metadata.maxAge}, stale-while-revalidate=${this.options.revalidateWindow}`,
-			)
-			.json({ data: weathers });
+				`max-age=0, stale-while-revalidate=${this.options.revalidateWindow}`,
+			);
+
+		res.status(200).json({ data: weathers });
 	}
 
 	getWeathers(query: Point3D[]): Promise<WeatherData[]> {
@@ -79,18 +85,26 @@ export class WeatherController extends Backend.Component {
 		}
 	}
 
-	cacheResponse(weathers: WeatherData[]): Promise<CacheMetadata> {
-		const sample = weathers[0]!;
-		return this.cache.cache(
-			JSON.stringify(weathers),
-			sample.sampleTimestamp + sample.sampleInterval,
-			sample.sampleInterval,
-		);
+	// TODO: repository should return maxAge and expireAt to reduce the number of
+	// operation against WeatherData[] since its probably has already been
+	// iterated atleast once in repository...
+	async cacheResponse(weathers: WeatherData[]): Promise<CacheMetadata | null> {
+		const sample = weathers.toSorted(
+			(a, b) => a.sampleTimestamp - b.sampleTimestamp,
+		)[0]!;
+		const expireAt = sample.sampleTimestamp + sample.sampleInterval;
+		const maxAge = expireAt - Date.now();
+		if (maxAge <= 0) return null;
+
+		return this.cache.cache(JSON.stringify(weathers), expireAt, maxAge);
 	}
 
-	async getResponseCache(req: Request): Promise<CacheMetadata | undefined> {
+	async getResponseCache(req: Request): Promise<CacheMetadata | null> {
 		const etags = WeatherController.getEtags(req);
-		return this.cache.get(etags);
+		const metadata = await this.cache.get(etags);
+		if (metadata == null || metadata.expireAt - Date.now() <= 0) return null;
+
+		return metadata;
 	}
 
 	sendResponseCache(res: Response, cache: CacheMetadata) {
