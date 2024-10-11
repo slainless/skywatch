@@ -78,11 +78,28 @@ export class WeatherController extends Backend.Component {
 			assertWeathersQuery(parsed);
 
 			return parsed.map((location) =>
-				typeof location === "string" ? Cities[location].point : location,
+				typeof location === "string"
+					? Cities[location].point
+					: WeatherController.normalizePoint(location),
 			);
 		} catch (e) {
 			throw new HTTPError(400, e as Error);
 		}
+	}
+
+	private static pointFormatter = new Intl.NumberFormat(undefined, {
+		maximumFractionDigits: 3,
+		minimumFractionDigits: 3,
+	});
+	private static normalizePoint(point: Point3D): Point3D {
+		const format = (v: number) => WeatherController.pointFormatter.format(v);
+		const normalized = {
+			latitude: Number(format(point.latitude)),
+			longitude: Number(format(point.longitude)),
+		} as Point3D;
+		if (point.altitude != null)
+			normalized.altitude = Number(format(point.altitude));
+		return normalized;
 	}
 
 	// TODO: repository should return maxAge and expireAt to reduce the number of
