@@ -9,6 +9,8 @@
 		"url": "https://github.com/slainless/deweazer"
 	},
 	"scripts": {
+		"test:container:redis": "docker run --rm --name deweazer.api.test.redis -p 6379:6379 redis",
+		"test:container:mongo": "docker run --rm --name deweazer.api.test.mongo -p 27017:27017 mongo",
 		"typegen": "bunx typia generate --input guard/template --output guard/artifact --project tsconfig.json"
 	},
 	"license": "MIT",
@@ -23,11 +25,13 @@
 	"dependencies": {
 		"@deweazer/city-list": "*",
 		"@deweazer/common": "*",
+		"@deweazer/email": "*",
 		"@deweazer/persistence": "*",
 		"@deweazer/weather": "*",
-		"@deweazer/email": "*",
 		"express": "^4.21.0",
+		"mongodb": "^6.9.0",
 		"pino": "^9.4.0",
+		"redis": "^4.7.0",
 		"typia": "^6.11.1"
 	}
 }
