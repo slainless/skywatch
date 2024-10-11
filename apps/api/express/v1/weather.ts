@@ -87,21 +87,6 @@ export class WeatherController extends Backend.Component {
 		}
 	}
 
-	private static pointFormatter = new Intl.NumberFormat(undefined, {
-		maximumFractionDigits: 3,
-		minimumFractionDigits: 3,
-	});
-	private static normalizePoint(point: Point3D): Point3D {
-		const format = (v: number) => WeatherController.pointFormatter.format(v);
-		const normalized = {
-			latitude: Number(format(point.latitude)),
-			longitude: Number(format(point.longitude)),
-		} as Point3D;
-		if (point.altitude != null)
-			normalized.altitude = Number(format(point.altitude));
-		return normalized;
-	}
-
 	// TODO: repository should return maxAge and expireAt to reduce the number of
 	// operation against WeatherData[] since its probably has already been
 	// iterated atleast once in repository...
@@ -145,5 +130,20 @@ export class WeatherController extends Backend.Component {
 
 		const etags = header.matchAll(WeatherController.regexpEtag);
 		return Array.from(etags).map((etag) => etag[1]!);
+	}
+
+	private static pointFormatter = new Intl.NumberFormat(undefined, {
+		maximumFractionDigits: 3,
+		minimumFractionDigits: 3,
+	});
+	private static normalizePoint(point: Point3D): Point3D {
+		const format = (v: number) => WeatherController.pointFormatter.format(v);
+		const normalized = {
+			latitude: Number(format(point.latitude)),
+			longitude: Number(format(point.longitude)),
+		} as Point3D;
+		if (point.altitude != null)
+			normalized.altitude = Number(format(point.altitude));
+		return normalized;
 	}
 }
