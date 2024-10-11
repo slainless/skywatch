@@ -123,3 +123,28 @@ export class RedisKV implements KV {
 		}
 	}
 }
+
+export class RedisKVWithTTL extends RedisKV {
+	private ttl: number;
+
+	constructor(
+		client: RedisClientType,
+		options: { ttlSeconds: number; serializer?: Serializer },
+	) {
+		super(client, options?.serializer);
+		this.ttl = options.ttlSeconds;
+	}
+
+	async set(k: any, v: any) {
+		RedisKV.assertKey(k);
+		return void Promise.all([super.set(k, v), this.client.expire(k, this.ttl)]);
+	}
+
+	async bulkSet(kvTuples: KVTuple[]): Promise<void> {
+		RedisKV.assertKVTuples(kvTuples);
+		return void Promise.all([
+			super.bulkSet(kvTuples),
+			...kvTuples.map(([k, v]) => this.client.expire(k, this.ttl)),
+		]);
+	}
+}
