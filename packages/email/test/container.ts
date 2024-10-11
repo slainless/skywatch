@@ -1,15 +1,12 @@
 import { AMQPClient, type AMQPChannel } from "@cloudamqp/amqp-client";
 import { createProcess } from "@deweazer/spawn";
-import {
-	BunContainerOrchestrator,
-	spawnRabbitMQ,
-} from "@deweazer/spawn/container";
+import { BunContainerOrchestrator, Spawner } from "@deweazer/spawn/container";
 
 export const RabbitMQ = () =>
 	new BunContainerOrchestrator<{
 		client: AMQPClient;
 		channel: AMQPChannel;
-	}>(spawnRabbitMQ.bind(null, "mq"), "deweazer.email.test.mq")
+	}>(Spawner.RabbitMQ.bind(null, "mq"), "deweazer.email.test.mq")
 		.onStart(async (vars) => {
 			vars.client = new AMQPClient("amqp://localhost");
 			await vars.client.connect();

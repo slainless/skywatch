@@ -15,18 +15,6 @@ export async function stopContainer(container: Subprocess<any>, id: string) {
 	return container.exited;
 }
 
-export async function spawnRabbitMQ(hostname: string) {
-	const id = crypto.randomUUID();
-	const container = await createProcess(
-		`docker run --rm --hostname ${hostname} --name ${id} -p 5672:5672 rabbitmq`,
-		(line) => {
-			return line.indexOf("Server startup complete") !== -1;
-		},
-	);
-	await Bun.sleep(100);
-	return { containerID: id, container };
-}
-
 export async function isContainerRunning(name: string) {
 	const ps = await $`docker ps`.text();
 	return ps.indexOf(name) !== -1;
@@ -106,5 +94,45 @@ export class BunContainerOrchestrator<Vars = {}> {
 
 		this.isExternal = await isContainerRunning(this.externalContainerName);
 		return this.isExternal;
+	}
+}
+
+export namespace Spawner {
+	export async function RabbitMQ(hostname: string) {
+		const id = crypto.randomUUID();
+		const container = await createProcess(
+			`docker run --rm --hostname ${hostname} --name ${id} -p 5672:5672 rabbitmq`,
+			(line) => {
+				return line.indexOf("Server startup complete") !== -1;
+			},
+		);
+		await Bun.sleep(100);
+		return { containerID: id, container };
+	}
+
+	export async function Redis() {
+		const id = crypto.randomUUID();
+		const container = await createProcess(
+			`docker run --rm -p 6379:6379 --name ${id} redis`,
+			(line) => {
+				return line.indexOf("Ready to accept connections tcp") !== -1;
+			},
+		);
+		await Bun.sleep(500);
+
+		return { containerID: id, container };
+	}
+
+	export async function MongoDB() {
+		const id = crypto.randomUUID();
+		const container = await createProcess(
+			`docker run --rm -p 27017:27017 --name ${id} mongo`,
+			(line) => {
+				return line.indexOf("mongod startup complete") !== -1;
+			},
+		);
+		await Bun.sleep(500);
+
+		return { containerID: id, container };
 	}
 }
