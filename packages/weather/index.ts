@@ -13,8 +13,8 @@ export type {
 	SamplesWithUnit,
 	WeatherData,
 	ComposableWeatherData,
-	WMOCode,
 } from "./weather.js";
+export { WMOCode } from "./weather.js";
 export {
 	Provider,
 	DEFAULT_FORECAST_DAYS,
