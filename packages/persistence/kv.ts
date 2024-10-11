@@ -12,4 +12,4 @@ export interface KV {
 	bulkHas(keys: any[]): Promise<boolean[]>;
 }
 
-export type KVTuple = [key: any, value: any];
+export type KVTuple = [key: any, value: any] | readonly [key: any, value: any];

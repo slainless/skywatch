@@ -52,6 +52,17 @@ export class WeatherRepository extends Backend.Component {
 		return final;
 	}
 
+	async setWeathers(query: Point3D[], weathers: Required<WeatherData>[]) {
+		const bulk = query.map(
+			(point, index) =>
+				[WeatherRepository.serializePoint(point), weathers[index]!] as const,
+		);
+		this.persistence.cache().bulkSet(bulk);
+
+		// regardless of cache bulk set result, what matter is storage bulk set result
+		return this.persistence.storage().bulkSet(bulk);
+	}
+
 	// private static pointFormatter = new Intl.NumberFormat(undefined, {
 	// 	maximumFractionDigits: 3,
 	// 	minimumFractionDigits: 3,

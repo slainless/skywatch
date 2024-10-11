@@ -62,7 +62,10 @@ export class WeatherService extends Backend.Component {
 		query: Point3D[],
 		weathers: Required<WeatherData>[],
 	) {
-		return this.event.weather().new(query, weathers);
+		return Promise.all([
+			this.event.weather().new(query, weathers),
+			this.repository.setWeathers(query, weathers),
+		]);
 	}
 
 	private static mapToReturn(
