@@ -2,11 +2,11 @@ import type { Express } from "express";
 import express from "express";
 import type { WeatherService } from "../service/weather";
 import { WeatherController } from "./v1/weather";
-import type { CacheRepository } from "../repository/cache";
+import type { CacheMetadataRepository } from "../repository/cache-metadata";
 
 export function createServer(
 	weatherService: WeatherService,
-	weatherCache: CacheRepository,
+	weatherCache: CacheMetadataRepository,
 ): Express {
 	const app = express();
 

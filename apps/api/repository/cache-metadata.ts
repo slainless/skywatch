@@ -1,7 +1,6 @@
 import { Backend } from "@deweazer/common";
 import type { KV } from "@deweazer/persistence";
 import type { StringLike } from "bun";
-import type { Request } from "express";
 
 export interface CacheMetadata {
 	etag: string;
@@ -9,7 +8,7 @@ export interface CacheMetadata {
 	maxAge: number;
 }
 
-export class CacheRepository extends Backend.Component {
+export class CacheMetadataRepository extends Backend.Component {
 	constructor(private kv: KV) {
 		super();
 	}
@@ -24,7 +23,7 @@ export class CacheRepository extends Backend.Component {
 		expireAt: number,
 		maxAge: number,
 	): Promise<CacheMetadata> {
-		const metadata = await CacheRepository.createMetadata(
+		const metadata = await CacheMetadataRepository.createMetadata(
 			serializable,
 			expireAt,
 			maxAge,
@@ -42,7 +41,7 @@ export class CacheRepository extends Backend.Component {
 		expireAt: number,
 		maxAge: number,
 	): Promise<CacheMetadata> {
-		const hash = await CacheRepository.hash(serializable);
+		const hash = await CacheMetadataRepository.hash(serializable);
 		return {
 			etag: hash,
 			expireAt,

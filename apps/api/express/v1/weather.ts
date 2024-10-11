@@ -1,7 +1,10 @@
 import type { Request, Response, RequestHandler } from "express";
 import { Backend, HTTPError, type Point3D } from "@deweazer/common";
 import type { WeatherService } from "../../service/weather";
-import type { CacheMetadata, CacheRepository } from "../../repository/cache";
+import type {
+	CacheMetadata,
+	CacheMetadataRepository,
+} from "../../repository/cache-metadata";
 import type { WeatherData } from "@deweazer/weather";
 import {
 	assertWeathersQuery,
@@ -18,7 +21,7 @@ export class WeatherController extends Backend.Component {
 	private options: Required<WeatherControllerOptions>;
 	constructor(
 		private service: WeatherService,
-		private cache: CacheRepository,
+		private cache: CacheMetadataRepository,
 		options?: WeatherControllerOptions,
 	) {
 		super();
@@ -43,6 +46,43 @@ export class WeatherController extends Backend.Component {
 		};
 	}
 
+	async getResponseCache(req: Request): Promise<CacheMetadata | null> {
+		const etags = WeatherController.getEtags(req);
+		const metadata = await this.cache.get(etags);
+		if (metadata == null || metadata.expireAt - Date.now() <= 0) return null;
+
+		return metadata;
+	}
+
+	sendResponseCache(res: Response, cache: CacheMetadata) {
+		res
+			.status(304)
+			.set("Etag", cache.etag)
+			.set(
+				"Cache-Control",
+				`max-age=${cache.maxAge}, stale-while-revalidate=${this.options.revalidateWindow}`,
+			)
+			.send();
+	}
+
+	getWeathers(query: Point3D[]): Promise<WeatherData[]> {
+		return this.service.getWeathers(query);
+	}
+
+	// TODO: repository should return maxAge and expireAt to reduce the number of
+	// operation against WeatherData[] since its probably has already been
+	// iterated atleast once in repository...
+	async cacheResponse(weathers: WeatherData[]): Promise<CacheMetadata | null> {
+		const sample = weathers.toSorted(
+			(a, b) => a.sampleTimestamp - b.sampleTimestamp,
+		)[0]!;
+		const expireAt = sample.sampleTimestamp + sample.sampleInterval;
+		const maxAge = expireAt - Date.now();
+		if (maxAge <= 0) return null;
+
+		return this.cache.cache(JSON.stringify(weathers), expireAt, maxAge);
+	}
+
 	sendResponse(
 		res: Response,
 		weathers: WeatherData[],
@@ -64,10 +104,6 @@ export class WeatherController extends Backend.Component {
 		res.status(200).json({ data: weathers });
 	}
 
-	getWeathers(query: Point3D[]): Promise<WeatherData[]> {
-		return this.service.getWeathers(query);
-	}
-
 	parseQuery(req: Request): Point3D[] {
 		try {
 			const locations = req.query.locations;
@@ -85,39 +121,6 @@ export class WeatherController extends Backend.Component {
 		} catch (e) {
 			throw new HTTPError(400, e as Error);
 		}
-	}
-
-	// TODO: repository should return maxAge and expireAt to reduce the number of
-	// operation against WeatherData[] since its probably has already been
-	// iterated atleast once in repository...
-	async cacheResponse(weathers: WeatherData[]): Promise<CacheMetadata | null> {
-		const sample = weathers.toSorted(
-			(a, b) => a.sampleTimestamp - b.sampleTimestamp,
-		)[0]!;
-		const expireAt = sample.sampleTimestamp + sample.sampleInterval;
-		const maxAge = expireAt - Date.now();
-		if (maxAge <= 0) return null;
-
-		return this.cache.cache(JSON.stringify(weathers), expireAt, maxAge);
-	}
-
-	async getResponseCache(req: Request): Promise<CacheMetadata | null> {
-		const etags = WeatherController.getEtags(req);
-		const metadata = await this.cache.get(etags);
-		if (metadata == null || metadata.expireAt - Date.now() <= 0) return null;
-
-		return metadata;
-	}
-
-	sendResponseCache(res: Response, cache: CacheMetadata) {
-		res
-			.status(304)
-			.set("Etag", cache.etag)
-			.set(
-				"Cache-Control",
-				`max-age=${cache.maxAge}, stale-while-revalidate=${this.options.revalidateWindow}`,
-			)
-			.send();
 	}
 
 	// format: "<ASCII>" /W"<ASCII>"
