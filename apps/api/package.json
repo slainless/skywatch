@@ -25,6 +25,7 @@
 		"@deweazer/common": "*",
 		"@deweazer/persistence": "*",
 		"@deweazer/weather": "*",
+		"@deweazer/email": "*",
 		"express": "^4.21.0",
 		"pino": "^9.4.0",
 		"typia": "^6.11.1"
