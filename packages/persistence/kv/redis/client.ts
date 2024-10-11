@@ -9,8 +9,8 @@ export const NullValueError = new TypeError(
 
 export class RedisKV implements KV {
 	constructor(
-		private client: RedisClientType,
-		private serializer = MessagePackSerializer.serializer,
+		protected client: RedisClientType,
+		protected serializer = MessagePackSerializer.serializer,
 	) {}
 
 	setSerializer(serializer: Serializer) {

@@ -29,7 +29,7 @@ export interface MongoKVOptions {
  */
 export class MongoKV implements KV {
 	constructor(
-		private client: MongoClient,
+		protected client: MongoClient,
 		/**
 		 * Setup the collection before using this driver:
 		 * - Set unique index for `options.idField`
@@ -43,8 +43,8 @@ export class MongoKV implements KV {
 		 *    }
 		 *  ```
 		 */
-		private collection: Collection,
-		private options: MongoKVOptions,
+		protected collection: Collection,
+		protected options: MongoKVOptions,
 	) {}
 
 	get(key: any, isRaw?: false): Promise<any>;
