@@ -50,40 +50,17 @@ export const Cities = {
 	[GlobalCity.Warsaw]:         data("Warsaw",          "PL", "Europe/Warsaw",       point(52.2297, 21.0122)),
 };
 
-function serializePoint(latitude: number, longitude: number) {
-	return `${latitude},${longitude}`;
+function serializePoint(point: Point3D): string {
+	return `${point.latitude},${point.longitude}`;
 }
 
-const pointToCityMap = {
-	[serializePoint(51.507222, -0.1275)]: GlobalCity.London,
-	[serializePoint(40.712776, -74.005974)]: GlobalCity.NewYorkCity,
-	[serializePoint(39.9042, 116.4074)]: GlobalCity.Beijing,
-	[serializePoint(25.276987, 55.296249)]: GlobalCity.Dubai,
-	[serializePoint(22.3193, 114.1694)]: GlobalCity.HongKong,
-	[serializePoint(48.8566, 2.3522)]: GlobalCity.Paris,
-	[serializePoint(31.2304, 121.4737)]: GlobalCity.Shanghai,
-	[serializePoint(1.3521, 103.8198)]: GlobalCity.Singapore,
-	[serializePoint(35.682839, 139.759455)]: GlobalCity.Tokyo,
-	[serializePoint(52.3676, 4.9041)]: GlobalCity.Amsterdam,
-	[serializePoint(50.8503, 4.3517)]: GlobalCity.Brussels,
-	[serializePoint(41.8781, -87.6298)]: GlobalCity.Chicago,
-	[serializePoint(50.1109, 8.6821)]: GlobalCity.Frankfurt,
-	[serializePoint(41.0082, 28.9784)]: GlobalCity.Istanbul,
-	[serializePoint(-6.2088, 106.8456)]: GlobalCity.Jakarta,
-	[serializePoint(3.139, 101.6869)]: GlobalCity.KualaLumpur,
-	[serializePoint(34.0522, -118.2437)]: GlobalCity.LosAngeles,
-	[serializePoint(49.6117, 6.13)]: GlobalCity.LuxembourgCity,
-	[serializePoint(40.4168, -3.7038)]: GlobalCity.Madrid,
-	[serializePoint(19.4326, -99.1332)]: GlobalCity.MexicoCity,
-	[serializePoint(45.4642, 9.19)]: GlobalCity.Milan,
-	[serializePoint(19.076, 72.8777)]: GlobalCity.Mumbai,
-	[serializePoint(-23.5505, -46.6333)]: GlobalCity.SaoPaulo,
-	[serializePoint(37.5665, 126.978)]: GlobalCity.Seoul,
-	[serializePoint(-33.8688, 151.2093)]: GlobalCity.Sydney,
-	[serializePoint(43.65107, -79.347015)]: GlobalCity.Toronto,
-	[serializePoint(52.2297, 21.0122)]: GlobalCity.Warsaw,
-};
+const pointToCityMap = Object.fromEntries(
+	Object.entries(Cities).map(([city, data]) => [
+		serializePoint(data.point),
+		city,
+	]),
+) as Record<string, GlobalCity>;
 
 export function pointToCity(latitude: number, longitude: number) {
-	return pointToCityMap[serializePoint(latitude, longitude)];
+	return pointToCityMap[serializePoint({ latitude, longitude })];
 }
