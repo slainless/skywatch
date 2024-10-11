@@ -20,7 +20,7 @@ export function format(
     </ul>
     <br></br>
     <p>Have a good day,</p>
-    <p>@deweazer
+    <p>@deweazer</p>
     <br></br>
     <p>Click here to <a href="#">Stop subscribing</a></p>
   `;
