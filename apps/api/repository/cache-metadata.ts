@@ -32,7 +32,7 @@ export class CacheMetadataRepository extends Backend.Component {
 		return metadata;
 	}
 
-	async storeMetadata(metadata: CacheMetadata): Promise<void> {
+	private async storeMetadata(metadata: CacheMetadata): Promise<void> {
 		await this.kv.set(metadata.etag, metadata);
 	}
 
@@ -54,6 +54,6 @@ export class CacheMetadataRepository extends Backend.Component {
 			"SHA-1",
 			Buffer.from(serializable.toString()),
 		);
-		return Buffer.from(buffer).toString("utf8");
+		return Buffer.from(buffer).toString("hex");
 	}
 }
