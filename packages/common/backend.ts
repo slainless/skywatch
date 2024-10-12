@@ -7,10 +7,7 @@ export namespace Backend {
 
 		setLogger(logger: Logger) {
 			const name = this.getConstructorName();
-			if (name)
-				this.logger = logger.child({
-					class: this.getConstructorName(),
-				});
+			if (name) this.logger = logger.child({ class: name });
 			else this.logger = logger;
 			return this;
 		}
