@@ -33,6 +33,14 @@ import {
 } from "date-fns";
 import type { GetResult } from "@deweazer/persistence";
 import type { Point3D } from "@deweazer/common";
+import {
+	cacheHit,
+	data,
+	dataWithTimestamp,
+	point,
+	storageHit,
+	storageMiss,
+} from "../test/weather";
 
 const { persistence, cache, storage } = createMockPersistence();
 
@@ -42,19 +50,6 @@ afterEach(() => {
 });
 
 const date = new Date("2000-01-02T01:00:00.000Z");
-const data = (v: Partial<WeatherData>) =>
-	merge({}, expected, v) as Required<WeatherData>;
-const dataWithTimestamp = (date: Date) =>
-	data({ sampleTimestamp: date.getTime() });
-
-const storageMiss = () =>
-	({ cacheHit: false, storageHit: false, value: null }) satisfies GetResult;
-const storageHit = (v: any) =>
-	({ cacheHit: false, storageHit: true, value: v }) satisfies GetResult;
-const cacheHit = (v: any) =>
-	({ cacheHit: true, storageHit: false, value: v }) satisfies GetResult;
-
-const point = (x: number, y: number) => ({ latitude: y, longitude: x });
 
 describe(WeatherRepository.name, () => {
 	it("should return correct key partitions", async () => {
