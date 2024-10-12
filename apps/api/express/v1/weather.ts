@@ -76,7 +76,7 @@ export class WeatherController extends Backend.Component {
 		const sample = weathers.toSorted(
 			(a, b) => a.sampleTimestamp - b.sampleTimestamp,
 		)[0]!;
-		const expireAt = sample.sampleTimestamp + sample.sampleInterval;
+		const expireAt = sample.sampleTimestamp + sample.sampleIntervalMs;
 		const maxAge = expireAt - Date.now();
 		if (maxAge <= 0) return null;
 
