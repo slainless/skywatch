@@ -8,11 +8,9 @@ import {
 	mock,
 	setSystemTime,
 } from "bun:test";
-import { WeatherRepository } from "./weather";
-import { createMockPersistence } from "../test/helper";
+import type { Point3D } from "@skywatch/common";
+import type { GetResult } from "@skywatch/persistence";
 import type { WeatherData } from "@skywatch/weather";
-import merge from "merge";
-import expected from "../test/example.expected.json";
 import {
 	addDays,
 	addHours,
@@ -31,8 +29,9 @@ import {
 	subWeeks,
 	subYears,
 } from "date-fns";
-import type { GetResult } from "@skywatch/persistence";
-import type { Point3D } from "@skywatch/common";
+import merge from "merge";
+import expected from "../test/example.expected.json";
+import { createMockPersistence } from "../test/helper";
 import {
 	cacheHit,
 	data,
@@ -41,6 +40,7 @@ import {
 	storageHit,
 	storageMiss,
 } from "../test/weather";
+import { WeatherRepository } from "./weather";
 
 const { persistence, cache, storage } = createMockPersistence();
 

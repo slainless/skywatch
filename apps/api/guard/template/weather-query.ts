@@ -1,6 +1,6 @@
 import type { GlobalCity } from "@skywatch/city-list";
 import type { QueryLocation, WeatherData } from "@skywatch/weather";
-import { createAssertGuard, createIs, type AssertionGuard } from "typia";
+import { type AssertionGuard, createAssertGuard, createIs } from "typia";
 
 export type WeathersQuery = Array<GlobalCity | QueryLocation>;
 

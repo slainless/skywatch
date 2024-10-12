@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, mock, test } from "bun:test";
-import { EventService, WeatherEventHandler } from "./event";
-import { MockEmailPusher } from "../test/helper";
-import expected from "../test/example.expected.json";
 import { Cities, GlobalCity } from "@skywatch/city-list";
 import { format } from "../misc/email-formatter";
+import expected from "../test/example.expected.json";
+import { MockEmailPusher } from "../test/helper";
+import { EventService, WeatherEventHandler } from "./event";
 
 describe(EventService.name, () => {
 	test("basic member/instance test", () => {

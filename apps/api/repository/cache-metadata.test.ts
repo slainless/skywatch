@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, mock } from "bun:test";
-import { CacheMetadataRepository, type CacheMetadata } from "./cache-metadata";
-import { createMockKV } from "../test/helper";
 import expected from "../test/example.expected.json";
+import { createMockKV } from "../test/helper";
+import { type CacheMetadata, CacheMetadataRepository } from "./cache-metadata";
 
 const kv = createMockKV();
 

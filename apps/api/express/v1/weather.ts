@@ -1,16 +1,13 @@
-import type { Request, Response, RequestHandler } from "express";
+import { Cities } from "@skywatch/city-list";
 import { Backend, HTTPError, type Point3D } from "@skywatch/common";
-import type { WeatherService } from "../../service/weather";
+import type { WeatherData } from "@skywatch/weather";
+import type { Request, RequestHandler, Response } from "express";
+import { assertWeathersQuery } from "../../guard/artifact/weather-query";
 import type {
 	CacheMetadata,
 	CacheMetadataRepository,
 } from "../../repository/cache-metadata";
-import type { WeatherData } from "@skywatch/weather";
-import {
-	assertWeathersQuery,
-	type WeathersQuery,
-} from "../../guard/artifact/weather-query";
-import { Cities } from "@skywatch/city-list";
+import type { WeatherService } from "../../service/weather";
 
 export type { WeathersQuery } from "../../guard/artifact/weather-query";
 

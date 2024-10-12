@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
-import { createTransport, type SendMailOptions } from "nodemailer";
-import { createEmailSender, EmailSender } from "./sender";
-import { QUEUE_PREFIX } from "./broker";
 import { MessagePackSerializer } from "@skywatch/serializer";
 import ky from "ky";
+import { type SendMailOptions, createTransport } from "nodemailer";
+import { QUEUE_PREFIX } from "./broker";
+import { createEmailPusher } from "./pusher";
+import { createEmailSender } from "./sender";
 import { MailHog, RabbitMQ } from "./test/container";
-import { createEmailPusher, EmailPusher } from "./pusher";
 
 const mq = RabbitMQ().orchestrate();
 const mh = MailHog().orchestrate();

@@ -1,4 +1,4 @@
-import { Cities, pointToCity, type GlobalCity } from "@skywatch/city-list";
+import { Cities, type GlobalCity, pointToCity } from "@skywatch/city-list";
 import type { Point3D } from "@skywatch/common";
 import type { WeatherData } from "@skywatch/weather";
 import { WMOCode } from "@skywatch/weather";

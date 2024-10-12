@@ -7,10 +7,10 @@ import {
 	mock,
 	spyOn,
 } from "bun:test";
+import { MessagePackSerializer } from "@skywatch/serializer";
 import { Redis } from "../../test/container.js";
 import example from "../../test/example.expected.json" assert { type: "json" };
 import { InvalidKeyTypeError, NullValueError, RedisKV } from "./client.js";
-import { MessagePackSerializer } from "@skywatch/serializer";
 
 const redis = Redis().orchestrate();
 const serializer = MessagePackSerializer.serializer;

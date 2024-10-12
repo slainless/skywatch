@@ -1,4 +1,4 @@
-import { AMQPClient, type AMQPChannel } from "@cloudamqp/amqp-client";
+import { type AMQPChannel, AMQPClient } from "@cloudamqp/amqp-client";
 import { createProcess } from "@skywatch/spawn";
 import { BunContainerOrchestrator, Spawner } from "@skywatch/spawn/container";
 

@@ -1,9 +1,9 @@
-import type { KV, Persistence } from "@skywatch/persistence";
 import { mock } from "bun:test";
-import { WeatherRepository } from "../repository/weather";
 import { EmailPusher } from "@skywatch/email";
-import { EventService, WeatherEventHandler } from "../service/event";
+import type { KV, Persistence } from "@skywatch/persistence";
 import type { Provider } from "@skywatch/weather";
+import { WeatherRepository } from "../repository/weather";
+import { EventService, WeatherEventHandler } from "../service/event";
 
 export function createMockKV() {
 	return {

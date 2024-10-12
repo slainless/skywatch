@@ -1,4 +1,5 @@
 import {
+	type Mock,
 	afterEach,
 	beforeEach,
 	describe,
@@ -6,11 +7,10 @@ import {
 	it,
 	mock,
 	spyOn,
-	type Mock,
 } from "bun:test";
 import { LazyLoadPersistence } from "./lazy-load";
-import { Mongo, Redis } from "./test/container";
 import type { GetResult } from "./persistence";
+import { Mongo, Redis } from "./test/container";
 
 const redis = Redis().orchestrate();
 const mongo = Mongo().orchestrate();
