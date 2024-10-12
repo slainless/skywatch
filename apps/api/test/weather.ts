@@ -2,6 +2,7 @@ import type { GetResult } from "@deweazer/persistence";
 import type { WeatherData } from "@deweazer/weather";
 import { merge } from "merge";
 import expected from "./example.expected.json";
+import type { Point3D } from "@deweazer/common";
 
 export const data = (v: Partial<WeatherData>) =>
 	merge({}, expected, v) as Required<WeatherData>;
@@ -16,3 +17,6 @@ export const cacheHit = (v: any) =>
 	({ cacheHit: true, storageHit: false, value: v }) satisfies GetResult;
 
 export const point = (x: number, y: number) => ({ latitude: y, longitude: x });
+
+export type WeatherTuple = [Point3D, Required<WeatherData>];
+export type WeatherGetResultTuple = [Point3D, GetResult<Required<WeatherData>>];
