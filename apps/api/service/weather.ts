@@ -5,6 +5,7 @@ import type {
 import type { Provider, QueryOptions, WeatherData } from "@deweazer/weather";
 import type { EventService } from "./event";
 import { Backend, type Point3D } from "@deweazer/common";
+import { AsymmetricalError } from "@deweazer/common/errors";
 
 export class WeatherService extends Backend.Component {
 	private event: EventService;
@@ -52,7 +53,10 @@ export class WeatherService extends Backend.Component {
 	private async fetchWeathers(
 		query: Point3D[],
 	): Promise<Array<Required<WeatherData>>> {
-		return this.provider.getWeathers(query);
+		const result = await this.provider.getWeathers(query);
+		if (result.length !== query.length)
+			throw new AsymmetricalError(result, query, "Lengths doesn't match");
+		return result;
 	}
 
 	private async onNewWeathers(

@@ -2,6 +2,7 @@ import type { GetResult, Persistence } from "@deweazer/persistence";
 import { Backend, type Point3D } from "@deweazer/common";
 import type { WeatherData } from "@deweazer/weather";
 import { isWeatherData } from "../guard/artifact/weather-query";
+import { AsymmetricalError } from "@deweazer/common/errors";
 
 export interface WeatherRepositoryResult {
 	results: Map<Point3D, GetResult<Required<WeatherData>>>;
@@ -28,6 +29,9 @@ export class WeatherRepository extends Backend.Component {
 		const weathers = (await this.persistence.bulkGet(
 			locations.map(WeatherRepository.serializePoint),
 		)) as GetResult<Required<WeatherData>>[];
+
+		if (locations.length !== weathers.length)
+			throw new AsymmetricalError(weathers, locations, "Lengths doesn't match");
 
 		const now = Date.now();
 		for (const [index, point] of Object.entries(locations)) {
@@ -63,6 +67,9 @@ export class WeatherRepository extends Backend.Component {
 	}
 
 	async setWeathers(query: Point3D[], weathers: Required<WeatherData>[]) {
+		if (query.length !== weathers.length)
+			throw new AsymmetricalError(weathers, query, "Lengths doesn't match");
+
 		const bulk = query
 			.map(
 				(point, index) =>
