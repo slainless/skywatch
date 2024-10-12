@@ -1,5 +1,8 @@
 import type { KV, Persistence } from "@deweazer/persistence";
 import { mock } from "bun:test";
+import { WeatherRepository } from "../repository/weather";
+import { EmailPusher } from "@deweazer/email";
+import { EventService, WeatherEventHandler } from "../service/event";
 
 export function createMockKV() {
 	return {
@@ -31,4 +34,44 @@ export function createMockPersistence() {
 		cache,
 		storage,
 	};
+}
+
+export class MockEmailPusher extends EmailPusher {
+	constructor() {
+		// @ts-expect-error
+		super(undefined);
+	}
+
+	send = mock();
+}
+
+export class MockWeatherRepository extends WeatherRepository {
+	constructor() {
+		// @ts-expect-error
+		super(undefined);
+	}
+
+	setWeathers = mock();
+	getWeathers = mock();
+}
+
+export class MockWeatherEventHandler extends WeatherEventHandler {
+	constructor() {
+		// @ts-expect-error
+		super(undefined);
+	}
+	new = mock();
+	addPushTarget = mock();
+	removePushTarget = mock();
+}
+
+export class MockEventService extends EventService {
+	constructor(private mockWeather: MockWeatherEventHandler) {
+		// @ts-expect-error
+		super(undefined);
+	}
+
+	weather() {
+		return this.mockWeather;
+	}
 }
