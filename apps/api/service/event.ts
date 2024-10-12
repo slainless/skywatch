@@ -29,7 +29,10 @@ export class WeatherEventHandler extends Backend.Component {
 	): Promise<void> {
 		if (this.emailPushTargets.size < 1) return;
 		return void Promise.all(
-			this.emailPushTargets.entries().map(([email, name]) => {
+			// TODO: change to use iterator helper when this fixed:
+			// https://github.com/oven-sh/bun/issues/14426
+			// https://bugs.webkit.org/show_bug.cgi?id=280811
+			Array.from(this.emailPushTargets.entries()).map(([email, name]) => {
 				return this.emailPusher.send({
 					to: email,
 					subject: "🌦️ New weather just dropped!",
