@@ -54,6 +54,8 @@ const storageHit = (v: any) =>
 const cacheHit = (v: any) =>
 	({ cacheHit: true, storageHit: false, value: v }) satisfies GetResult;
 
+const point = (x: number, y: number) => ({ latitude: y, longitude: x });
+
 describe(WeatherRepository.name, () => {
 	it("should return correct key partitions", async () => {
 		const repo = new WeatherRepository(persistence);
@@ -116,7 +118,6 @@ describe(WeatherRepository.name, () => {
 		// we are testing the expire boundary...
 		// since data is using interval 900s, we are substracting 900s from base date
 		setSystemTime(addSeconds(date, 900));
-		const point = (x: number, y: number) => ({ latitude: y, longitude: x });
 		const bulk = [
 			[point(1, 2), storageMiss()], // miss
 
@@ -179,5 +180,58 @@ describe(WeatherRepository.name, () => {
 		);
 
 		expect(result.stale).toEqual(shouldStale);
+	});
+
+	it("should skip invalid data received from persistence", async () => {
+		const repo = new WeatherRepository(persistence);
+
+		const bulk = [
+			[point(0, 1), storageHit({ a: 99 })],
+			[point(0, 2), cacheHit(data({ sampleIntervalMs: "F" as any }))],
+			[point(0, 3), cacheHit(data({ current: null as any }))],
+			[point(0, 4), cacheHit(null)],
+			[point(0, 5), storageHit(9999)],
+			[point(0, 6), storageHit({})],
+		] satisfies [Point3D, GetResult<any>][];
+		const keys = bulk.map((v) => v[0]);
+		const values = bulk.map((v) => v[1]);
+
+		persistence.bulkGet.mockResolvedValueOnce(values);
+		const result = await repo.getWeathers(keys);
+		expect(keys.map((k) => result.results.get(k))).toEqual(
+			Array(keys.length).fill(storageMiss()),
+		);
+		expect(persistence.bulkGet).toHaveBeenLastCalledWith(
+			keys.map(WeatherRepository.serializePoint),
+		);
+	});
+
+	it("should correctly set weathers to persistence and filtering the input", async () => {
+		const repo = new WeatherRepository(persistence);
+		const bulk = [
+			[point(0, 0), { a: 99 }],
+			[point(0, 1), data({ sampleIntervalMs: "F" as any })],
+			[point(0, 2), data({ current: null as any })],
+			[point(0, 3), null],
+			[point(0, 4), 9999],
+			[point(0, 5), {}],
+			[point(0, 6), data({})],
+			[point(0, 7), data({})],
+			[point(0, 8), data({})],
+			[point(0, 9), {}],
+		] as [Point3D, any][];
+		const keys = bulk.map((v) => v[0]);
+		const values = bulk.map((v) => v[1]);
+		const filtered = [bulk[6], bulk[7], bulk[8]].map((v) => [
+			WeatherRepository.serializePoint(v![0]),
+			v![1],
+		]);
+
+		cache.bulkSet.mockResolvedValueOnce(undefined);
+		storage.bulkSet.mockResolvedValueOnce(undefined);
+
+		await repo.setWeathers(keys, values);
+		expect(cache.bulkSet).toHaveBeenLastCalledWith(filtered);
+		expect(storage.bulkSet).toHaveBeenLastCalledWith(filtered);
 	});
 });

@@ -63,10 +63,12 @@ export class WeatherRepository extends Backend.Component {
 	}
 
 	async setWeathers(query: Point3D[], weathers: Required<WeatherData>[]) {
-		const bulk = query.map(
-			(point, index) =>
-				[WeatherRepository.serializePoint(point), weathers[index]!] as const,
-		);
+		const bulk = query
+			.map(
+				(point, index) =>
+					[WeatherRepository.serializePoint(point), weathers[index]!] as const,
+			)
+			.filter(([k, v]) => isWeatherData(v));
 		this.persistence.cache().bulkSet(bulk);
 
 		// regardless of cache bulk set result, what matter is storage bulk set result
