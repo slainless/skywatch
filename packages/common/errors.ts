@@ -13,13 +13,17 @@ export class HTTPError extends Error {
 export class AsymmetricalError extends Error {
 	name = "AsymmetricalError";
 
+	private static regexpTruncater = /(.{50})(?:.*)/;
+
 	constructor(
 		public left: any,
 		public right: any,
 		public reason: string,
 	) {
 		super(
-			`Asymmetrical found between ${JSON.stringify(left)} and ${JSON.stringify(right)}:\n${reason}`,
+			`Asymmetricality found between two values: ${reason}\n` +
+				`First: ${left?.toString().replace(AsymmetricalError.regexpTruncater, "$1...")}\n` +
+				`Second: ${right?.toString().replace(AsymmetricalError.regexpTruncater, "$1...")}`,
 		);
 	}
 }
