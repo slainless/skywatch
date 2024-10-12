@@ -54,7 +54,7 @@ export class WeatherRepository extends Backend.Component {
 				// TODO: should attach expireAt and maxAge data into the result
 				// so that subsequent process down the line dont have to calculate again
 				const data = weather.value;
-				const expireAt = data.sampleTimestamp + data.sampleInterval;
+				const expireAt = data.sampleTimestamp + data.sampleIntervalMs;
 				if (expireAt - now <= 0) final.stale.push(point);
 			} else final.storageMiss.push(point);
 		}

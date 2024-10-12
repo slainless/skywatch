@@ -1,4 +1,4 @@
-import type { KV } from "@deweazer/persistence";
+import type { KV, Persistence } from "@deweazer/persistence";
 import { mock } from "bun:test";
 
 export function createMockKV() {
@@ -12,4 +12,23 @@ export function createMockKV() {
 		bulkDelete: mock(),
 		bulkHas: mock(),
 	} satisfies KV;
+}
+
+export function createMockPersistence() {
+	const cache = createMockKV();
+	const storage = createMockKV();
+
+	return {
+		persistence: {
+			get: mock(),
+			has: mock(),
+			set: mock(),
+			delete: mock(),
+			bulkGet: mock(),
+			cache: () => cache,
+			storage: () => storage,
+		} satisfies Persistence,
+		cache,
+		storage,
+	};
 }
