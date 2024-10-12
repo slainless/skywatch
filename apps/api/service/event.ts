@@ -1,4 +1,4 @@
-import { Backend, Decorators, type Point3D } from "@deweazer/common";
+import { Backend, type Point3D } from "@deweazer/common";
 import type { EmailPusher } from "@deweazer/email";
 import type { WeatherData } from "@deweazer/weather";
 import { format } from "../misc/email-formatter";
@@ -16,7 +16,7 @@ export class EventService extends Backend.Component {
 }
 
 export class WeatherEventHandler extends Backend.Component {
-	emailPushTargets: Set<string> = new Set();
+	private emailPushTargets: Map<string, string> = new Map();
 
 	constructor(private emailPusher: EmailPusher) {
 		super();
@@ -29,8 +29,7 @@ export class WeatherEventHandler extends Backend.Component {
 	): Promise<void> {
 		if (this.emailPushTargets.size < 1) return;
 		return void Promise.all(
-			this.emailPushTargets.values().map((target) => {
-				const [email, name] = JSON.parse(target);
+			this.emailPushTargets.entries().map(([email, name]) => {
 				return this.emailPusher.send({
 					to: email,
 					subject: "🌦️ New weather just dropped!",
@@ -41,10 +40,10 @@ export class WeatherEventHandler extends Backend.Component {
 	}
 
 	addPushTarget(email: string, name: string) {
-		this.emailPushTargets.add(JSON.stringify([email, name]));
+		this.emailPushTargets.set(email, name);
 	}
 
-	removePushTarget(email: string, name: string) {
-		this.emailPushTargets.delete(JSON.stringify([email, name]));
+	removePushTarget(email: string) {
+		this.emailPushTargets.delete(email);
 	}
 }
