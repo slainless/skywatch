@@ -10,18 +10,15 @@ export class WeatherService extends Backend.Component {
 	private event: EventService;
 	private repository: WeatherRepository;
 	private provider: Provider;
-	private providerOptions?: QueryOptions;
 
 	constructor(
 		weatherRepository: WeatherRepository,
 		eventService: EventService,
 		weatherProvider: Provider,
-		options?: QueryOptions,
 	) {
 		super();
 		this.repository = weatherRepository;
 		this.provider = weatherProvider;
-		this.providerOptions = options;
 		this.event = eventService;
 	}
 
@@ -55,7 +52,7 @@ export class WeatherService extends Backend.Component {
 	private async fetchWeathers(
 		query: Point3D[],
 	): Promise<Array<Required<WeatherData>>> {
-		return this.provider.getWeathers(query, this.providerOptions);
+		return this.provider.getWeathers(query);
 	}
 
 	private async onNewWeathers(
