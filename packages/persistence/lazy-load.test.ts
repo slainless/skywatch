@@ -44,7 +44,7 @@ describe(LazyLoadPersistence.name, () => {
 			});
 
 			expect(redisGetSpy).toHaveBeenLastCalledWith("cache-hit");
-			expect(returned(redisGetSpy, 0)).resolves.toBe(helloWorld);
+			await expect(returned(redisGetSpy, 0)).resolves.toBe(helloWorld);
 
 			expect(redisGetSpy).toBeCalledTimes(1);
 			expect(mongoGetSpy).toBeCalledTimes(0);
@@ -64,9 +64,9 @@ describe(LazyLoadPersistence.name, () => {
 			});
 
 			expect(redisGetSpy).toHaveBeenLastCalledWith("cache-miss");
-			expect(returned(redisGetSpy, 0)).resolves.toBe(null);
+			await expect(returned(redisGetSpy, 0)).resolves.toBe(null);
 			expect(mongoGetSpy).toHaveBeenLastCalledWith("cache-miss");
-			expect(returned(mongoGetSpy, 0)).resolves.toBe(helloWorld);
+			await expect(returned(mongoGetSpy, 0)).resolves.toBe(helloWorld);
 
 			expect(redisGetSpy).toBeCalledTimes(1);
 			expect(mongoGetSpy).toBeCalledTimes(1);
@@ -90,9 +90,9 @@ describe(LazyLoadPersistence.name, () => {
 			expect(mongoGetSpy).toBeCalledTimes(1);
 
 			expect(redisGetSpy).toHaveBeenLastCalledWith("cache-miss, storage-hit");
-			expect(returned(redisGetSpy, 0)).resolves.toBe(null);
+			await expect(returned(redisGetSpy, 0)).resolves.toBe(null);
 			expect(mongoGetSpy).toHaveBeenLastCalledWith("cache-miss, storage-hit");
-			expect(returned(mongoGetSpy, 0)).resolves.toBe(helloWorld);
+			await expect(returned(mongoGetSpy, 0)).resolves.toBe(helloWorld);
 
 			await Bun.sleep(100);
 			expect(redisSetSpy).toHaveBeenLastCalledWith(
@@ -116,9 +116,9 @@ describe(LazyLoadPersistence.name, () => {
 			});
 
 			expect(redisGetSpy).toHaveBeenLastCalledWith("cache-miss, storage-miss");
-			expect(returned(redisGetSpy, 0)).resolves.toBe(null);
+			await expect(returned(redisGetSpy, 0)).resolves.toBe(null);
 			expect(mongoGetSpy).toHaveBeenLastCalledWith("cache-miss, storage-miss");
-			expect(returned(mongoGetSpy, 0)).resolves.toBe(null);
+			await expect(returned(mongoGetSpy, 0)).resolves.toBe(null);
 
 			expect(redisGetSpy).toBeCalledTimes(1);
 			expect(mongoGetSpy).toBeCalledTimes(1);
@@ -140,7 +140,7 @@ describe(LazyLoadPersistence.name, () => {
 			});
 
 			expect(redisHasSpy).toHaveBeenLastCalledWith("cache-hit");
-			expect(returned(redisHasSpy, 0)).resolves.toBe(true);
+			await expect(returned(redisHasSpy, 0)).resolves.toBe(true);
 
 			expect(redisHasSpy).toBeCalledTimes(1);
 			expect(mongoHasSpy).toBeCalledTimes(0);
@@ -159,9 +159,9 @@ describe(LazyLoadPersistence.name, () => {
 			});
 
 			expect(redisHasSpy).toHaveBeenLastCalledWith("cache-miss");
-			expect(returned(redisHasSpy, 0)).resolves.toBe(false);
+			await expect(returned(redisHasSpy, 0)).resolves.toBe(false);
 			expect(mongoHasSpy).toHaveBeenLastCalledWith("cache-miss");
-			expect(returned(mongoHasSpy, 0)).resolves.toBe(true);
+			await expect(returned(mongoHasSpy, 0)).resolves.toBe(true);
 
 			expect(redisHasSpy).toBeCalledTimes(1);
 			expect(mongoHasSpy).toBeCalledTimes(1);
@@ -182,16 +182,16 @@ describe(LazyLoadPersistence.name, () => {
 			});
 
 			expect(redisHasSpy).toHaveBeenLastCalledWith("cache-miss, storage-hit");
-			expect(returned(redisHasSpy, 0)).resolves.toBe(false);
+			await expect(returned(redisHasSpy, 0)).resolves.toBe(false);
 			expect(mongoHasSpy).toHaveBeenLastCalledWith("cache-miss, storage-hit");
-			expect(returned(mongoHasSpy, 0)).resolves.toBe(true);
+			await expect(returned(mongoHasSpy, 0)).resolves.toBe(true);
 
 			expect(redisHasSpy).toBeCalledTimes(1);
 			expect(mongoHasSpy).toBeCalledTimes(1);
 
 			await Bun.sleep(100);
 			expect(mongoGetSpy).toHaveBeenLastCalledWith("cache-miss, storage-hit");
-			expect(returned(mongoGetSpy, 0)).resolves.toBe(helloWorld);
+			await expect(returned(mongoGetSpy, 0)).resolves.toBe(helloWorld);
 
 			expect(redisSetSpy).toHaveBeenLastCalledWith(
 				"cache-miss, storage-hit",
@@ -214,9 +214,9 @@ describe(LazyLoadPersistence.name, () => {
 			});
 
 			expect(redisHasSpy).toHaveBeenLastCalledWith("cache-miss, storage-miss");
-			expect(returned(redisHasSpy, 0)).resolves.toBe(false);
+			await expect(returned(redisHasSpy, 0)).resolves.toBe(false);
 			expect(mongoHasSpy).toHaveBeenLastCalledWith("cache-miss, storage-miss");
-			expect(returned(mongoHasSpy, 0)).resolves.toBe(false);
+			await expect(returned(mongoHasSpy, 0)).resolves.toBe(false);
 
 			expect(redisHasSpy).toBeCalledTimes(1);
 			expect(mongoHasSpy).toBeCalledTimes(1);
