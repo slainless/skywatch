@@ -3,6 +3,7 @@ import { mock } from "bun:test";
 import { WeatherRepository } from "../repository/weather";
 import { EmailPusher } from "@deweazer/email";
 import { EventService, WeatherEventHandler } from "../service/event";
+import type { Provider } from "@deweazer/weather";
 
 export function createMockKV() {
 	return {
@@ -74,4 +75,10 @@ export class MockEventService extends EventService {
 	weather() {
 		return this.mockWeather;
 	}
+}
+
+export function createMockProvider() {
+	return {
+		getWeathers: mock(),
+	} satisfies Provider;
 }
