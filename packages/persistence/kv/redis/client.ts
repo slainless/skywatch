@@ -7,11 +7,21 @@ export const NullValueError = new TypeError(
 	"Value must not be null or undefined",
 );
 
+export interface RedisKVOptions {
+	serializer?: Serializer;
+	keyPrefix?: string;
+}
 export class RedisKV implements KV {
+	protected serializer: Serializer;
+	protected keyPrefix: string;
+
 	constructor(
 		protected client: RedisClientType,
-		protected serializer = MessagePackSerializer.serializer,
-	) {}
+		options?: RedisKVOptions,
+	) {
+		this.serializer = options?.serializer ?? MessagePackSerializer.serializer;
+		this.keyPrefix = options?.keyPrefix ?? "";
+	}
 
 	setSerializer(serializer: Serializer) {
 		this.serializer = serializer;
@@ -24,7 +34,7 @@ export class RedisKV implements KV {
 
 		const value = await this.client.get(
 			commandOptions({ returnBuffers: true }),
-			key.toString(),
+			this.prefix(key.toString()),
 		);
 		if (value == null || isRaw) return value;
 
@@ -36,7 +46,7 @@ export class RedisKV implements KV {
 		RedisKV.assertNotNull(value);
 
 		return await void this.client.set(
-			key.toString(),
+			this.prefix(key.toString()),
 			this.serializer.serialize(value),
 		);
 	}
@@ -44,13 +54,13 @@ export class RedisKV implements KV {
 	async delete(key: any): Promise<void> {
 		RedisKV.assertKey(key);
 
-		return await void this.client.del(key.toString());
+		return await void this.client.del(this.prefix(key.toString()));
 	}
 
 	async has(key: any): Promise<boolean> {
 		RedisKV.assertKey(key);
 
-		return (await this.client.exists(key.toString())) === 1;
+		return (await this.client.exists(this.prefix(key.toString()))) === 1;
 	}
 
 	bulkGet(keys: any[], isRaw?: false): Promise<Array<any | null>>;
@@ -61,7 +71,7 @@ export class RedisKV implements KV {
 
 		const values = await this.client.mGet(
 			commandOptions({ returnBuffers: true }),
-			keys.map((v) => v.toString()),
+			keys.map((key) => this.prefix(key.toString())),
 		);
 		if (isRaw) return values;
 		return values.map((value) =>
@@ -69,12 +79,16 @@ export class RedisKV implements KV {
 		);
 	}
 
-	async bulkSet(kvTuples: KVTuple[]): Promise<void> {
+	async bulkSet(kvTuples: KVTuple[] | readonly KVTuple[]): Promise<void> {
 		RedisKV.assertKVTuples(kvTuples);
 
 		return await void this.client.mSet(
 			kvTuples.map(
-				([key, value]) => [key, this.serializer.serialize(value)] as any,
+				([key, value]) =>
+					[
+						this.prefix(key.toString()),
+						this.serializer.serialize(value),
+					] as any,
 			),
 		);
 	}
@@ -82,7 +96,9 @@ export class RedisKV implements KV {
 	async bulkDelete(keys: any[]): Promise<void> {
 		RedisKV.assertKeys(keys);
 
-		return await void this.client.del(keys);
+		return await void this.client.del(
+			keys.map((key) => this.prefix(key.toString())),
+		);
 	}
 
 	async bulkHas(keys: any[]): Promise<boolean[]> {
@@ -91,9 +107,14 @@ export class RedisKV implements KV {
 
 		// these bulking commands will be pipelined automatically
 		// read: https://github.com/redis/node-redis?tab=readme-ov-file#auto-pipelining
-		return Promise.all(keys.map((key) => this.client.exists(key))).then(
-			(results) => results.map((result) => result === 1),
-		);
+		return Promise.all(
+			keys.map((key) => this.client.exists(this.prefix(key.toString()))),
+		).then((results) => results.map((result) => result === 1));
+	}
+
+	private prefix(key: string) {
+		if (this.keyPrefix == null || this.keyPrefix === "") return key;
+		return this.keyPrefix + key;
 	}
 
 	static assertKey(key: any): asserts key is string {
@@ -115,7 +136,7 @@ export class RedisKV implements KV {
 	}
 
 	static assertKVTuples(
-		kvTuples: KVTuple[],
+		kvTuples: KVTuple[] | readonly KVTuple[],
 	): asserts kvTuples is [any, NonNullable<any>][] {
 		for (const [key, value] of kvTuples) {
 			RedisKV.assertKey(key);
@@ -124,15 +145,16 @@ export class RedisKV implements KV {
 	}
 }
 
+export interface RedisKVWithTTLOptions extends RedisKVOptions {
+	ttlSeconds: number;
+}
 export class RedisKVWithTTL extends RedisKV {
 	private ttl: number;
 
-	constructor(
-		client: RedisClientType,
-		options: { ttlSeconds: number; serializer?: Serializer },
-	) {
-		super(client, options?.serializer);
-		this.ttl = options.ttlSeconds;
+	constructor(client: RedisClientType, options: RedisKVWithTTLOptions) {
+		const { ttlSeconds, ...rest } = options;
+		super(client, rest);
+		this.ttl = ttlSeconds;
 	}
 
 	async set(k: any, v: any) {

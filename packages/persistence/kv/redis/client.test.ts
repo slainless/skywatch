@@ -1,13 +1,25 @@
-import { beforeEach, describe, expect, it } from "bun:test";
+import {
+	afterAll,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	mock,
+	spyOn,
+} from "bun:test";
 import { Redis } from "../../test/container.js";
 import example from "../../test/example.expected.json" assert { type: "json" };
 import { InvalidKeyTypeError, NullValueError, RedisKV } from "./client.js";
+import { MessagePackSerializer } from "@deweazer/serializer";
 
 const redis = Redis().orchestrate();
+const serializer = MessagePackSerializer.serializer;
 
 beforeEach(async () => {
 	await redis.client.flushAll();
 });
+
+afterAll(() => mock.restore());
 
 describe(RedisKV.name, () => {
 	it("should be able to set & get value", async () => {
@@ -186,5 +198,88 @@ describe(RedisKV.name, () => {
 		]);
 		await kv.bulkDelete(keys);
 		expect(await kv.bulkHas(keys)).toEqual(Array(100).fill(false));
+	});
+
+	it("should be able to use prefixed key", async () => {
+		const keyPrefix =
+			"my-prefix-for-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA:";
+		const prefix = (v: string) => keyPrefix + v;
+		const value = (v: any) => serializer.serialize(v);
+		const kv = new RedisKV(redis.client, { keyPrefix });
+
+		const spies = {
+			get: spyOn(redis.client, "get"),
+			exists: spyOn(redis.client, "exists"),
+			set: spyOn(redis.client, "set"),
+			del: spyOn(redis.client, "del"),
+			mSet: spyOn(redis.client, "mSet"),
+			mGet: spyOn(redis.client, "mGet"),
+		};
+
+		await kv.set("a", 1);
+		expect(spies.set).toHaveBeenLastCalledWith(prefix("a"), value(1));
+
+		await expect(kv.has("a")).resolves.toBe(true);
+		expect(spies.exists).toHaveBeenLastCalledWith(prefix("a"));
+
+		await expect(kv.get("a")).resolves.toBe(1);
+		expect(spies.get.mock.lastCall).toContain(prefix("a"));
+
+		await kv.delete("a");
+		expect(spies.del).toHaveBeenLastCalledWith(prefix("a"));
+
+		await expect(kv.has("a")).resolves.toBe(false);
+		expect(spies.exists).toHaveBeenLastCalledWith(prefix("a"));
+
+		const bulk = [
+			["a", 1],
+			["b", 2],
+			["c", 3],
+			["f", 4],
+			["g", 5],
+			["h", 6],
+		] as const;
+		await kv.bulkSet(bulk);
+		expect(spies.mSet).toHaveBeenLastCalledWith(
+			bulk.map(([k, v]) => [prefix(k), value(v)]),
+		);
+
+		const bulkKeys = ["a", "b", "c", "d", "e", "f", "g", "h"];
+		await expect(kv.bulkGet(bulkKeys)).resolves.toEqual([
+			1,
+			2,
+			3,
+			null,
+			null,
+			4,
+			5,
+			6,
+		]);
+		expect(spies.mGet.mock.lastCall?.[1]).toEqual(
+			bulkKeys.map((key) => prefix(key)),
+		);
+
+		await kv.bulkDelete(["a", "g", "f"]);
+		expect(spies.del).toHaveBeenLastCalledWith([
+			prefix("a"),
+			prefix("g"),
+			prefix("f"),
+		]);
+
+		spies.exists.mockClear();
+		await expect(kv.bulkHas(bulkKeys)).resolves.toEqual([
+			false,
+			true,
+			true,
+			false,
+			false,
+			false,
+			false,
+			true,
+		]);
+		expect(spies.exists).toBeCalledTimes(bulkKeys.length);
+		expect(spies.exists.mock.calls).toEqual(
+			bulkKeys.map((key) => [prefix(key)]),
+		);
 	});
 });
