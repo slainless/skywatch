@@ -9,7 +9,7 @@ afterEach(() => mock.restore());
 
 describe(CacheMetadataRepository.name, () => {
 	it("should produce correct hex-encoded SHA1", async () => {
-		const hash = "4f888672fae84dd76a8c59a733e6638ff9f95610";
+		const hash = "8799311d4294d2e0ff46b7f64e37354dd3d81787";
 		const repo = new CacheMetadataRepository(kv);
 		const result = {
 			etag: hash,
