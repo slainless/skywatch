@@ -1,4 +1,4 @@
-import type { Point3D } from "@deweazer/common";
+import type { Point3D } from "@skywatch/common";
 import { GlobalCity } from "./enum";
 
 const point = (latitude: number, longitude: number): Point3D => ({

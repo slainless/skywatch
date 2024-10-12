@@ -1,6 +1,6 @@
-import { Backend, type Point3D } from "@deweazer/common";
-import type { EmailPusher } from "@deweazer/email";
-import type { WeatherData } from "@deweazer/weather";
+import { Backend, type Point3D } from "@skywatch/common";
+import type { EmailPusher } from "@skywatch/email";
+import type { WeatherData } from "@skywatch/weather";
 import { format } from "../misc/email-formatter";
 
 export class EventService extends Backend.Component {

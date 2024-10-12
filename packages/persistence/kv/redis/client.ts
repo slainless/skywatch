@@ -1,4 +1,4 @@
-import { MessagePackSerializer, type Serializer } from "@deweazer/serializer";
+import { MessagePackSerializer, type Serializer } from "@skywatch/serializer";
 import { type RedisClientType, commandOptions } from "redis";
 import type { KV, KVTuple } from "../../index.js";
 

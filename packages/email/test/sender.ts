@@ -1,7 +1,7 @@
 import { AMQPClient } from "@cloudamqp/amqp-client";
 import { createEmailSender } from "../sender";
 import { createTransport } from "nodemailer";
-import { MessagePackSerializer } from "@deweazer/serializer";
+import { MessagePackSerializer } from "@skywatch/serializer";
 
 declare const self: Worker;
 

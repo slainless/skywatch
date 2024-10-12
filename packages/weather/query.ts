@@ -1,4 +1,4 @@
-import type { Point3D } from "@deweazer/common";
+import type { Point3D } from "@skywatch/common";
 
 export type QueryLocation = Point3D;
 

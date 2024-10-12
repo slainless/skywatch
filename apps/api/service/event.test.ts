@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, mock, test } from "bun:test";
 import { EventService, WeatherEventHandler } from "./event";
 import { MockEmailPusher } from "../test/helper";
 import expected from "../test/example.expected.json";
-import { Cities, GlobalCity } from "@deweazer/city-list";
+import { Cities, GlobalCity } from "@skywatch/city-list";
 import { format } from "../misc/email-formatter";
 
 describe(EventService.name, () => {

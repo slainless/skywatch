@@ -1,16 +1,16 @@
 {
-	"name": "@deweazer/api",
+	"name": "@skywatch/api",
 	"author": {
 		"email": "aiman.fauzy.55@gmail.com",
 		"name": "Aiman Fauzy",
 		"url": "https://github.com/slainless"
 	},
 	"repository": {
-		"url": "https://github.com/slainless/deweazer"
+		"url": "https://github.com/slainless/skywatch"
 	},
 	"scripts": {
-		"test:container:redis": "docker run --rm --name deweazer.api.test.redis -p 6379:6379 redis",
-		"test:container:mongo": "docker run --rm --name deweazer.api.test.mongo -p 27017:27017 mongo",
+		"test:container:redis": "docker run --rm --name skywatch.api.test.redis -p 6379:6379 redis",
+		"test:container:mongo": "docker run --rm --name skywatch.api.test.mongo -p 27017:27017 mongo",
 		"typegen": "bunx typia generate --input guard/template --output guard/artifact --project tsconfig.json"
 	},
 	"license": "MIT",
@@ -26,11 +26,11 @@
 		"typescript": "^5.0.0"
 	},
 	"dependencies": {
-		"@deweazer/city-list": "*",
-		"@deweazer/common": "*",
-		"@deweazer/email": "*",
-		"@deweazer/persistence": "*",
-		"@deweazer/weather": "*",
+		"@skywatch/city-list": "*",
+		"@skywatch/common": "*",
+		"@skywatch/email": "*",
+		"@skywatch/persistence": "*",
+		"@skywatch/weather": "*",
 		"express": "^4.21.0",
 		"mongodb": "^6.9.0",
 		"pino": "^9.4.0",

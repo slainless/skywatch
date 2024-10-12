@@ -1,5 +1,5 @@
 {
-	"name": "deweazer",
+	"name": "skywatch",
 	"private": true,
 	"author": {
 		"email": "aiman.fauzy.55@gmail.com",
@@ -7,7 +7,7 @@
 		"url": "https://github.com/slainless"
 	},
 	"repository": {
-		"url": "https://github.com/slainless/deweazer"
+		"url": "https://github.com/slainless/skywatch"
 	},
 	"license": "MIT",
 	"scripts": {

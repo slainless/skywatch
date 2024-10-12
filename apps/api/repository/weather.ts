@@ -1,8 +1,8 @@
-import type { GetResult, Persistence } from "@deweazer/persistence";
-import { Backend, type Point3D } from "@deweazer/common";
-import type { WeatherData } from "@deweazer/weather";
+import type { GetResult, Persistence } from "@skywatch/persistence";
+import { Backend, type Point3D } from "@skywatch/common";
+import type { WeatherData } from "@skywatch/weather";
 import { isWeatherData } from "../guard/artifact/weather-query";
-import { AsymmetricalError } from "@deweazer/common/errors";
+import { AsymmetricalError } from "@skywatch/common/errors";
 
 export interface WeatherRepositoryResult {
 	results: Map<Point3D, GetResult<Required<WeatherData>>>;

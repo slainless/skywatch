@@ -1,12 +1,12 @@
 import { AMQPClient, type AMQPChannel } from "@cloudamqp/amqp-client";
-import { createProcess } from "@deweazer/spawn";
-import { BunContainerOrchestrator, Spawner } from "@deweazer/spawn/container";
+import { createProcess } from "@skywatch/spawn";
+import { BunContainerOrchestrator, Spawner } from "@skywatch/spawn/container";
 
 export const RabbitMQ = () =>
 	new BunContainerOrchestrator<{
 		client: AMQPClient;
 		channel: AMQPChannel;
-	}>(Spawner.RabbitMQ.bind(null, "mq"), "deweazer.email.test.mq")
+	}>(Spawner.RabbitMQ.bind(null, "mq"), "skywatch.email.test.mq")
 		.onStart(async (vars) => {
 			vars.client = new AMQPClient("amqp://localhost");
 			await vars.client.connect();
@@ -28,4 +28,4 @@ export const MailHog = () =>
 		);
 		await Bun.sleep(100);
 		return { containerID: id, container };
-	}, "deweazer.email.test.mailhog");
+	}, "skywatch.email.test.mailhog");

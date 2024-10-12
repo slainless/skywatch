@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
-import { MessagePackSerializer } from "@deweazer/serializer";
+import { MessagePackSerializer } from "@skywatch/serializer";
 import type { SendMailOptions } from "nodemailer";
 import { QUEUE_PREFIX } from "./broker";
 import { createEmailPusher } from "./pusher";
@@ -12,7 +12,7 @@ describe(createEmailPusher.name, async () => {
 		await mq.channel.queueDelete(QUEUE_PREFIX + email);
 	});
 
-	const email = "noreply@deweazer.io";
+	const email = "noreply@skywatch.io";
 	it("should be able to push corrent messages", async () => {
 		const messages = Array(process.env.ENABLE_HEAVYWEIGHT_TEST ? 10000 : 100)
 			.fill(0)

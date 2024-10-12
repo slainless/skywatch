@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { createTransport, type SendMailOptions } from "nodemailer";
 import { createEmailSender, EmailSender } from "./sender";
 import { QUEUE_PREFIX } from "./broker";
-import { MessagePackSerializer } from "@deweazer/serializer";
+import { MessagePackSerializer } from "@skywatch/serializer";
 import ky from "ky";
 import { MailHog, RabbitMQ } from "./test/container";
 

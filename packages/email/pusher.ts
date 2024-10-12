@@ -1,5 +1,5 @@
 import type { AMQPChannel, AMQPQueue } from "@cloudamqp/amqp-client";
-import { MessagePackSerializer } from "@deweazer/serializer";
+import { MessagePackSerializer } from "@skywatch/serializer";
 import type { SendMailOptions } from "nodemailer";
 import { QUEUE_PREFIX } from "./broker";
 

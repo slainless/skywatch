@@ -1,6 +1,6 @@
 import { AMQPClient } from "@cloudamqp/amqp-client";
 import { createEmailPusher } from "../pusher";
-import { MessagePackSerializer } from "@deweazer/serializer";
+import { MessagePackSerializer } from "@skywatch/serializer";
 import { assertMail } from "../guard/artifact/message";
 
 declare const self: Worker;

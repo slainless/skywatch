@@ -1,4 +1,4 @@
-# @deweazer/api
+# @skywatch/api
 
 To install dependencies:
 

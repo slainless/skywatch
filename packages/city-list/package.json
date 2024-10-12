@@ -1,19 +1,19 @@
 {
-	"name": "@deweazer/city-list",
+	"name": "@skywatch/city-list",
 	"author": {
 		"email": "aiman.fauzy.55@gmail.com",
 		"name": "Aiman Fauzy",
 		"url": "https://github.com/slainless"
 	},
 	"repository": {
-		"url": "https://github.com/slainless/deweazer"
+		"url": "https://github.com/slainless/skywatch"
 	},
 	"license": "MIT",
 	"module": "index.ts",
 	"type": "module",
 	"devDependencies": {
 		"@types/bun": "latest",
-		"@deweazer/common": "*"
+		"@skywatch/common": "*"
 	},
 	"peerDependencies": {
 		"typescript": "^5.0.0"

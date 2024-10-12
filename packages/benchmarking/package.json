@@ -1,12 +1,12 @@
 {
-	"name": "@deweazer/benchmarking",
+	"name": "@skywatch/benchmarking",
 	"author": {
 		"email": "aiman.fauzy.55@gmail.com",
 		"name": "Aiman Fauzy",
 		"url": "https://github.com/slainless"
 	},
 	"repository": {
-		"url": "https://github.com/slainless/deweazer"
+		"url": "https://github.com/slainless/skywatch"
 	},
 	"license": "MIT",
 	"module": "index.ts",
@@ -18,7 +18,7 @@
 		"typescript": "^5.0.0"
 	},
 	"dependencies": {
-		"@deweazer/config": "*",
+		"@skywatch/config": "*",
 		"bson": "^6.8.0",
 		"mitata": "^1.0.10",
 		"msgpackr": "^1.11.0",

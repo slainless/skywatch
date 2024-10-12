@@ -1,27 +1,27 @@
 {
-	"name": "@deweazer/persistence",
+	"name": "@skywatch/persistence",
 	"author": {
 		"email": "aiman.fauzy.55@gmail.com",
 		"name": "Aiman Fauzy",
 		"url": "https://github.com/slainless"
 	},
 	"repository": {
-		"url": "https://github.com/slainless/deweazer"
+		"url": "https://github.com/slainless/skywatch"
 	},
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"test:container:redis": "docker run --rm --name deweazer.persistence.test.redis -p 6379:6379 redis",
-		"test:container:mongo": "docker run --rm --name deweazer.persistence.test.mongo -p 27017:27017 mongo",
+		"test:container:redis": "docker run --rm --name skywatch.persistence.test.redis -p 6379:6379 redis",
+		"test:container:mongo": "docker run --rm --name skywatch.persistence.test.mongo -p 27017:27017 mongo",
 		"test:container": "bunx concurrently \\\"bun run test:container:redis\\\" \\\"bun run test:container:mongo\\\""
 	},
 	"devDependencies": {
-		"@deweazer/config": "*",
-		"@deweazer/spawn": "*",
+		"@skywatch/config": "*",
+		"@skywatch/spawn": "*",
 		"@types/bun": "latest"
 	},
 	"dependencies": {
-		"@deweazer/serializer": "*"
+		"@skywatch/serializer": "*"
 	},
 	"peerDependencies": {
 		"typescript": "^5.0.0",

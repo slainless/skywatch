@@ -1,7 +1,7 @@
-import { Cities, pointToCity, type GlobalCity } from "@deweazer/city-list";
-import type { Point3D } from "@deweazer/common";
-import type { WeatherData } from "@deweazer/weather";
-import { WMOCode } from "@deweazer/weather";
+import { Cities, pointToCity, type GlobalCity } from "@skywatch/city-list";
+import type { Point3D } from "@skywatch/common";
+import type { WeatherData } from "@skywatch/weather";
+import { WMOCode } from "@skywatch/weather";
 
 export function format(
 	name: string,
@@ -20,7 +20,7 @@ export function format(
     </ul>
     <br></br>
     <p>Have a good day,</p>
-    <p>@deweazer</p>
+    <p>@skywatch</p>
     <br></br>
     <p>Click here to <a href="#">Stop subscribing</a></p>
   `;

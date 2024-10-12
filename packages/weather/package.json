@@ -1,12 +1,12 @@
 {
-	"name": "@deweazer/weather",
+	"name": "@skywatch/weather",
 	"author": {
 		"email": "aiman.fauzy.55@gmail.com",
 		"name": "Aiman Fauzy",
 		"url": "https://github.com/slainless"
 	},
 	"repository": {
-		"url": "https://github.com/slainless/deweazer"
+		"url": "https://github.com/slainless/skywatch"
 	},
 	"license": "MIT",
 	"type": "module",
@@ -16,8 +16,8 @@
 		"typegen": "bunx typia generate --input guard/template --output guard/artifact --project tsconfig.json"
 	},
 	"devDependencies": {
-		"@deweazer/config": "*",
-		"@deweazer/common": "*",
+		"@skywatch/config": "*",
+		"@skywatch/common": "*",
 		"@types/bun": "^1.1.10",
 		"@vitest/coverage-v8": "2.1.2",
 		"type-fest": "^4.26.1"

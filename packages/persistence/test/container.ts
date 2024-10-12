@@ -1,4 +1,4 @@
-import { BunContainerOrchestrator, Spawner } from "@deweazer/spawn/container";
+import { BunContainerOrchestrator, Spawner } from "@skywatch/spawn/container";
 import { type Collection, MongoClient } from "mongodb";
 import { type RedisClientType, createClient } from "redis";
 import { MongoKV } from "../kv/mongodb/client";
@@ -10,7 +10,7 @@ export const Mongo = () =>
 		kv: MongoKV;
 		key: string;
 		collection: Collection;
-	}>(Spawner.MongoDB, "deweazer.persistence.test.mongo")
+	}>(Spawner.MongoDB, "skywatch.persistence.test.mongo")
 		.onStart(async (vars) => {
 			vars.key = "key";
 			vars.client = await new MongoClient("mongodb://localhost:27017");
@@ -30,7 +30,7 @@ export const Redis = () =>
 	new BunContainerOrchestrator<{
 		client: RedisClientType;
 		kv: RedisKV;
-	}>(Spawner.Redis, "deweazer.persistence.test.redis")
+	}>(Spawner.Redis, "skywatch.persistence.test.redis")
 		.onStart(async (vars) => {
 			vars.client = createClient();
 			await vars.client.connect();

@@ -1,5 +1,5 @@
-import type { GlobalCity } from "@deweazer/city-list";
-import type { QueryLocation, WeatherData } from "@deweazer/weather";
+import type { GlobalCity } from "@skywatch/city-list";
+import type { QueryLocation, WeatherData } from "@skywatch/weather";
 import { createAssertGuard, createIs, type AssertionGuard } from "typia";
 
 export type WeathersQuery = Array<GlobalCity | QueryLocation>;

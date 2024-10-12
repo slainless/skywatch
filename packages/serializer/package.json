@@ -1,17 +1,17 @@
 {
-	"name": "@deweazer/serializer",
+	"name": "@skywatch/serializer",
 	"author": {
 		"email": "aiman.fauzy.55@gmail.com",
 		"name": "Aiman Fauzy",
 		"url": "https://github.com/slainless"
 	},
 	"repository": {
-		"url": "https://github.com/slainless/deweazer"
+		"url": "https://github.com/slainless/skywatch"
 	},
 	"license": "MIT",
 	"type": "module",
 	"devDependencies": {
-		"@deweazer/config": "*",
+		"@skywatch/config": "*",
 		"@types/amqplib": "^0.10.5",
 		"@types/bun": "latest",
 		"@types/nodemailer": "^6.4.16"

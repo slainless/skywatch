@@ -1,5 +1,5 @@
-import { Backend } from "@deweazer/common";
-import type { KV } from "@deweazer/persistence";
+import { Backend } from "@skywatch/common";
+import type { KV } from "@skywatch/persistence";
 import type { StringLike } from "bun";
 
 export interface CacheMetadata {

@@ -10,7 +10,7 @@ import {
 } from "bun:test";
 import { WeatherRepository } from "./weather";
 import { createMockPersistence } from "../test/helper";
-import type { WeatherData } from "@deweazer/weather";
+import type { WeatherData } from "@skywatch/weather";
 import merge from "merge";
 import expected from "../test/example.expected.json";
 import {
@@ -31,8 +31,8 @@ import {
 	subWeeks,
 	subYears,
 } from "date-fns";
-import type { GetResult } from "@deweazer/persistence";
-import type { Point3D } from "@deweazer/common";
+import type { GetResult } from "@skywatch/persistence";
+import type { Point3D } from "@skywatch/common";
 import {
 	cacheHit,
 	data,

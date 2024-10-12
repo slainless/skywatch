@@ -1,18 +1,18 @@
 {
-	"name": "@deweazer/spawn",
+	"name": "@skywatch/spawn",
 	"author": {
 		"email": "aiman.fauzy.55@gmail.com",
 		"name": "Aiman Fauzy",
 		"url": "https://github.com/slainless"
 	},
 	"repository": {
-		"url": "https://github.com/slainless/deweazer"
+		"url": "https://github.com/slainless/skywatch"
 	},
 	"license": "MIT",
 	"module": "index.ts",
 	"type": "module",
 	"devDependencies": {
-		"@deweazer/config": "*",
+		"@skywatch/config": "*",
 		"@types/bun": "^1.1.10",
 		"delay-cli": "^2.0.0"
 	},

@@ -1,4 +1,4 @@
-# @deweazer/benchmarking
+# @skywatch/benchmarking
 
 To install dependencies:
 

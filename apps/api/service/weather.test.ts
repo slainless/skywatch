@@ -17,7 +17,7 @@ import {
 } from "../test/weather";
 import type { WeatherRepositoryResult } from "../repository/weather";
 import { subSeconds } from "date-fns";
-import type { WeatherData } from "@deweazer/weather";
+import type { WeatherData } from "@skywatch/weather";
 
 const repo = new MockWeatherRepository();
 const weatherEvent = new MockWeatherEventHandler();

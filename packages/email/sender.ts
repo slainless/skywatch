@@ -4,7 +4,7 @@ import type {
 	AMQPMessage,
 	AMQPQueue,
 } from "@cloudamqp/amqp-client";
-import { MessagePackSerializer } from "@deweazer/serializer";
+import { MessagePackSerializer } from "@skywatch/serializer";
 import { Mutex } from "async-mutex";
 import type { SendMailOptions, Transporter } from "nodemailer";
 import { QUEUE_PREFIX } from "./broker";

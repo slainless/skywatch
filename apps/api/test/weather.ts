@@ -1,8 +1,8 @@
-import type { GetResult } from "@deweazer/persistence";
-import type { WeatherData } from "@deweazer/weather";
+import type { GetResult } from "@skywatch/persistence";
+import type { WeatherData } from "@skywatch/weather";
 import { merge } from "merge";
 import expected from "./example.expected.json";
-import type { Point3D } from "@deweazer/common";
+import type { Point3D } from "@skywatch/common";
 
 export const data = (v: Partial<WeatherData>) =>
 	merge({}, expected, v) as Required<WeatherData>;

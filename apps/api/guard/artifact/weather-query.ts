@@ -1,5 +1,5 @@
-import type { GlobalCity } from "@deweazer/city-list";
-import type { QueryLocation, WeatherData } from "@deweazer/weather";
+import type { GlobalCity } from "@skywatch/city-list";
+import type { QueryLocation, WeatherData } from "@skywatch/weather";
 import { createAssertGuard, createIs, type AssertionGuard } from "typia";
 export type WeathersQuery = Array<GlobalCity | QueryLocation>;
 export const assertWeathersQuery: AssertionGuard<WeathersQuery> = (() => { const $guard = (createAssertGuard as any).guard; const $iv2 = new Set(["london", "new-york-city", "beijing", "dubai", "hong-kong", "paris", "shanghai", "singapore", "tokyo", "amsterdam", "brussels", "chicago", "frankfurt", "istanbul", "jakarta", "kuala-lumpur", "los-angeles", "luxembourg-city", "madrid", "mexico-city", "milan", "mumbai", "sao-paulo", "seoul", "sydney", "toronto", "warsaw"]); const $av4 = new Set(["london", "new-york-city", "beijing", "dubai", "hong-kong", "paris", "shanghai", "singapore", "tokyo", "amsterdam", "brussels", "chicago", "frankfurt", "istanbul", "jakarta", "kuala-lumpur", "los-angeles", "luxembourg-city", "madrid", "mexico-city", "milan", "mumbai", "sao-paulo", "seoul", "sydney", "toronto", "warsaw"]); const $io0 = (input: any): boolean => "number" === typeof input.latitude && "number" === typeof input.longitude && (undefined === input.altitude || "number" === typeof input.altitude); const $ao0 = (input: any, _path: string, _exceptionable: boolean = true): boolean => ("number" === typeof input.latitude || $guard(_exceptionable, {

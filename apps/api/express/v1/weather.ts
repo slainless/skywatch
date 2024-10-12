@@ -1,16 +1,16 @@
 import type { Request, Response, RequestHandler } from "express";
-import { Backend, HTTPError, type Point3D } from "@deweazer/common";
+import { Backend, HTTPError, type Point3D } from "@skywatch/common";
 import type { WeatherService } from "../../service/weather";
 import type {
 	CacheMetadata,
 	CacheMetadataRepository,
 } from "../../repository/cache-metadata";
-import type { WeatherData } from "@deweazer/weather";
+import type { WeatherData } from "@skywatch/weather";
 import {
 	assertWeathersQuery,
 	type WeathersQuery,
 } from "../../guard/artifact/weather-query";
-import { Cities } from "@deweazer/city-list";
+import { Cities } from "@skywatch/city-list";
 
 export type { WeathersQuery } from "../../guard/artifact/weather-query";
 
