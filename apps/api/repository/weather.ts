@@ -1,6 +1,7 @@
 import type { GetResult, Persistence } from "@deweazer/persistence";
 import { Backend, type Point3D } from "@deweazer/common";
 import type { WeatherData } from "@deweazer/weather";
+import { isWeatherData } from "../guard/artifact/weather-query";
 
 export interface WeatherRepositoryResult {
 	results: Map<Point3D, GetResult<Required<WeatherData>>>;
@@ -38,12 +39,21 @@ export class WeatherRepository extends Backend.Component {
 
 			final.results.set(point, weather);
 			if (weather.cacheHit || weather.storageHit) {
+				// guard against invalid value from persistence
+				// we are skipping the wrong value entirely
+				if (isWeatherData(weather.value) === false) {
+					weather.value = null;
+					weather.cacheHit = false;
+					weather.storageHit = false;
+					final.storageMiss.push(point);
+					continue;
+				}
 				if (weather.cacheHit) final.cacheHit.push(point);
 				else final.storageHit.push(point);
 
 				// TODO: should attach expireAt and maxAge data into the result
 				// so that subsequent process down the line dont have to calculate again
-				const data = weather.value!;
+				const data = weather.value;
 				const expireAt = data.sampleTimestamp + data.sampleInterval;
 				if (expireAt - now <= 0) final.stale.push(point);
 			} else final.storageMiss.push(point);
