@@ -96,7 +96,7 @@ export function mapResponseToResult(
 	{
 		// open meteo sampling rate is 0.09Hz
 		// so we are picking sample date from nearest quarter hour
-		result.sampleInterval = 900;
+		result.sampleIntervalMs = 900e3;
 		const now = new Date();
 		const sampleDate = nearestQuarterHour(now);
 		result.receivedTimestamp = now.getTime();

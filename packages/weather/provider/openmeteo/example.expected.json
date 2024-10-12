@@ -7,7 +7,7 @@
 	"timezone": "Asia/Jakarta",
 	"timezoneAbbr": "WIB",
 	"receivedTimestamp": 1728429095626,
-	"sampleInterval": 900,
+	"sampleIntervalMs": 900000,
 	"sampleTimestamp": 1728428435626,
 	"current": {
 		"data": {

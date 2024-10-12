@@ -6,9 +6,9 @@
 	},
 	"timezone": "Asia/Jakarta",
 	"timezoneAbbr": "WIB",
-	"receivedTimestamp": 946688400000,
-	"sampleTimestamp": 946688400000,
-	"sampleInterval": 800,
+	"receivedTimestamp": 1728429095626,
+	"sampleIntervalMs": 900000,
+	"sampleTimestamp": 1728428435626,
 	"current": {
 		"data": {
 			"apparentTemperature": 6.4,

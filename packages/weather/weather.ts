@@ -117,7 +117,7 @@ export interface WeatherData {
 
 	receivedTimestamp: number;
 	sampleTimestamp: number;
-	sampleInterval: number;
+	sampleIntervalMs: number;
 }
 
 export type WeatherDataComposition = "current" | "hourly" | "daily";
