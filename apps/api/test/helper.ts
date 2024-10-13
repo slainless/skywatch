@@ -4,6 +4,8 @@ import type { KV, Persistence } from "@skywatch/persistence";
 import type { Provider } from "@skywatch/weather";
 import { WeatherRepository } from "../repository/weather";
 import { EventService, WeatherEventHandler } from "../service/event";
+import { WeatherService } from "../service/weather";
+import { CacheMetadataRepository } from "../repository/cache-metadata";
 
 export function createMockKV() {
 	return {
@@ -75,6 +77,25 @@ export class MockEventService extends EventService {
 	weather() {
 		return this.mockWeather;
 	}
+}
+
+export class MockWeatherService extends WeatherService {
+	constructor() {
+		// @ts-expect-error
+		super(undefined, undefined, undefined);
+	}
+
+	getWeathers = mock();
+}
+
+export class MockCacheMetadataRepository extends CacheMetadataRepository {
+	constructor() {
+		// @ts-expect-error
+		super(undefined);
+	}
+
+	cache = mock();
+	get = mock();
 }
 
 export function createMockProvider() {
