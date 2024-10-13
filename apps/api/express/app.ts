@@ -17,7 +17,7 @@ export function createServer(
 	const v1 = express.Router();
 	v1.get("/weathers", weather.mount());
 
-	app.get("/v1", v1);
+	app.use("/v1", v1);
 	app.use(error.mount());
 	return app;
 }
