@@ -1,6 +1,6 @@
 export { OpenMeteoProvider } from "./openmeteo.js";
 export type {
-	OpenMeteoResponse,
-	OpenMeteoParameters,
-	OpenMeteoResponseComponents,
+  OpenMeteoResponse,
+  OpenMeteoParameters,
+  OpenMeteoResponseComponents,
 } from "./schema.js";

@@ -1,5 +1,5 @@
 export interface Point3D {
-	latitude: number;
-	longitude: number;
-	altitude?: number;
+  latitude: number;
+  longitude: number;
+  altitude?: number;
 }

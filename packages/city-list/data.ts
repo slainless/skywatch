@@ -2,20 +2,20 @@ import type { Point3D } from "@skywatch/common";
 import { GlobalCity } from "./enum";
 
 const point = (latitude: number, longitude: number): Point3D => ({
-	latitude,
-	longitude,
+  latitude,
+  longitude,
 });
 
 const data = (
-	displayName: string,
-	ISO3166Alpha2: string,
-	tz: string,
-	point: Point3D,
+  displayName: string,
+  ISO3166Alpha2: string,
+  tz: string,
+  point: Point3D,
 ) => ({
-	displayName,
-	point,
-	tz,
-	code: ISO3166Alpha2,
+  displayName,
+  point,
+  tz,
+  code: ISO3166Alpha2,
 });
 
 // biome-ignore format: table view
@@ -51,16 +51,16 @@ export const Cities = {
 };
 
 function serializePoint(point: Point3D): string {
-	return `${point.latitude},${point.longitude}`;
+  return `${point.latitude},${point.longitude}`;
 }
 
 const pointToCityMap = Object.fromEntries(
-	Object.entries(Cities).map(([city, data]) => [
-		serializePoint(data.point),
-		city,
-	]),
+  Object.entries(Cities).map(([city, data]) => [
+    serializePoint(data.point),
+    city,
+  ]),
 ) as Record<string, GlobalCity>;
 
 export function pointToCity(latitude: number, longitude: number) {
-	return pointToCityMap[serializePoint({ latitude, longitude })];
+  return pointToCityMap[serializePoint({ latitude, longitude })];
 }
