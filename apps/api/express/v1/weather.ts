@@ -58,7 +58,7 @@ export class WeatherController extends Backend.Component {
 	sendResponseCache(res: Response, cache: CacheMetadata) {
 		res
 			.status(304)
-			.set("Etag", cache.etag)
+			.set("Etag", `"${cache.etag}"`)
 			.set(
 				"Cache-Control",
 				`max-age=${Math.round(cache.maxAgeMs / 1000)}, stale-while-revalidate=${this.options.revalidateWindow}`,
@@ -91,7 +91,7 @@ export class WeatherController extends Backend.Component {
 	): void {
 		if (metadata != null)
 			res
-				.set("Etag", metadata.etag)
+				.set("Etag", `"${metadata.etag}"`)
 				.set(
 					"Cache-Control",
 					`max-age=${Math.round(metadata.maxAgeMs / 1000)}, stale-while-revalidate=${this.options.revalidateWindow}`,
