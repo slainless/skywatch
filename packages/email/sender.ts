@@ -25,6 +25,9 @@ export class EmailSender {
 			if (message.body == null) return message.nack();
 			const mail = this.serializer.deserialize(Buffer.from(message.body));
 			assertMail(mail);
+			if (mail.from == null)
+				mail.from =
+					this.transporter.options.from ?? this.transporter.options.sender;
 			await this.transporter.sendMail(mail);
 			return message.ack();
 		} catch (e) {
@@ -67,6 +70,7 @@ export async function createEmailSender(
 	emailAddr: string,
 	transporter: Transporter,
 ) {
+	const transport = Object.assign({ from: emailAddr }, transporter);
 	const queue = await channel.queue(QUEUE_PREFIX + emailAddr);
 	return new EmailSender(queue, transporter);
 }
