@@ -18,7 +18,7 @@ describe(CacheMetadataRepository.name, () => {
 		} satisfies CacheMetadata;
 
 		await expect(
-			repo.cache(JSON.stringify(expected), result.expireAt, result.maxAge),
+			repo.cache(JSON.stringify(expected), result.expireAt, result.maxAgeMs),
 		).resolves.toEqual(result);
 		expect(kv.set).toHaveBeenLastCalledWith(hash, result);
 	});

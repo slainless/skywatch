@@ -100,8 +100,10 @@ describe("E2E with worker", () => {
 				}),
 		);
 
-		const pusher = new Worker("./test/pusher.controlled.ts");
-		const sender = new Worker("./test/sender.ts");
+		const pusher = new Worker(
+			new URL("./test/pusher.controlled.ts", import.meta.url),
+		);
+		const sender = new Worker(new URL("./test/sender.ts", import.meta.url));
 
 		const errorHandler = (event: ErrorEvent) => {
 			pusher.terminate();
