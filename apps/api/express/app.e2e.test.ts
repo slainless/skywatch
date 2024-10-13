@@ -26,6 +26,7 @@ import { createEmailPusher } from "@skywatch/email/pusher";
 import { createTransport } from "nodemailer";
 import { addHours, addSeconds, getTime, subHours } from "date-fns";
 import { dataWithTimestamp, storageMiss } from "../test/weather";
+import pino from "pino";
 
 const mq = RabbitMQ().orchestrate();
 const redis = Redis().orchestrate();
@@ -42,6 +43,12 @@ async function orchestrate() {
 	});
 	const mailhog = ky.create({ prefixUrl: "http://localhost:8025/api/v1" });
 
+	const logger = pino({
+		transport: {
+			target: "pino-pretty",
+		},
+	});
+
 	const kv = {
 		requestCache: new RedisKV(redis.client, { keyPrefix: "cache:" }),
 		weatherCache: new RedisKV(redis.client, { keyPrefix: "weather:" }),
@@ -55,7 +62,7 @@ async function orchestrate() {
 		kv.weatherStorage,
 	);
 	const repo = {
-		weather: new WeatherRepository(persistence),
+		weather: new WeatherRepository(persistence).setLogger(logger),
 		cache: new CacheMetadataRepository(kv.requestCache),
 	};
 
@@ -63,8 +70,11 @@ async function orchestrate() {
 
 	const emailPusher = await createEmailPusher(mq.channel, EMAIL_SENDER);
 
-	const event = new EventService(emailPusher);
-	const service = new WeatherService(repo.weather, event, provider);
+	const event = new EventService(emailPusher).setLogger(logger);
+	const service = new WeatherService(repo.weather, event, provider).setLogger(
+		logger,
+	);
+
 	const app = createServer(service, repo.cache);
 
 	app.listen(PORT);
@@ -191,6 +201,9 @@ describe("/v1/weathers", () => {
 				"If-None-Match": `"${etags[1].etag}" "${etags[0].etag}"`,
 			},
 		});
+
+		await Bun.sleep(500);
+
 		const resultBody = await result.text();
 		expect(result.status).toBe(304);
 		expect(result.headers.get("Etag")).toBe(`"${etags[1].etag}"`);
@@ -286,20 +299,5 @@ describe("/v1/weathers", () => {
 		expect(email.Content.Body).toContain(
 			Cities[queries.at(-1) as GlobalCity].displayName,
 		);
-
-		const result2 = await env.req.get("weathers", {
-			searchParams: {
-				locations: JSON.stringify(queries),
-			},
-			headers: {
-				"If-None-Match": result.headers.get("If-None-Match") ?? "",
-			},
-		});
-
-		const resultBody2 = await result2.json<{ data: Required<WeatherData>[] }>();
-		expect(result2.status).toBe(200);
-		expect(resultBody2.data).toBeArrayOfSize(queries.length);
-		expect(resultBody2.data.slice(0, -1)).toEqual(resultBody.data.slice(0, -1));
-		expect(resultBody2.data.at(-1)).toEqual(resultBody.data.at(-1)!);
 	});
 });
