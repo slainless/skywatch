@@ -11,6 +11,9 @@
 	"scripts": {
 		"test:container:redis": "docker run --rm --name skywatch.api.test.redis -p 6379:6379 redis",
 		"test:container:mongo": "docker run --rm --name skywatch.api.test.mongo -p 27017:27017 mongo",
+		"test:container:mq": "docker run --rm --hostname mq --name skywatch.api.test.mq -p 5672:5672 rabbitmq",
+		"test:container:mailhog": "docker run --rm --name skywatch.api.test.mailhog -p 1025:1025 -p 8025:8025 mailhog/mailhog",
+		"test:container": "bunx concurrently \"bun run test:container:redis\" \"bun run test:container:mongo\" \"bun run test:container:mq\" \"bun run test:container:mailhog\"",
 		"typegen": "bunx typia generate --input guard/template --output guard/artifact --project tsconfig.json"
 	},
 	"license": "MIT",
@@ -26,11 +29,13 @@
 		"typescript": "^5.0.0"
 	},
 	"dependencies": {
+		"@cloudamqp/amqp-client": "^3.1.1",
 		"@skywatch/city-list": "*",
 		"@skywatch/common": "*",
 		"@skywatch/email": "*",
 		"@skywatch/persistence": "*",
 		"@skywatch/weather": "*",
+		"commander": "^12.1.0",
 		"express": "^5.0.0",
 		"mongodb": "^6.9.0",
 		"pino": "^9.4.0",

@@ -1,3 +1,4 @@
+import { type AMQPChannel, AMQPClient } from "@cloudamqp/amqp-client";
 import { MongoKV } from "@skywatch/persistence/mongo-kv";
 import { RedisKV } from "@skywatch/persistence/redis-kv";
 import { BunContainerOrchestrator, Spawner } from "@skywatch/spawn/container";
@@ -10,7 +11,7 @@ export const Mongo = () =>
 		kv: MongoKV;
 		key: string;
 		collection: Collection;
-	}>(Spawner.MongoDB, "skywatch.persistence.test.mongo")
+	}>(Spawner.MongoDB, "skywatch.api.test.mongo")
 		.onStart(async (vars) => {
 			vars.key = "key";
 			vars.client = await new MongoClient("mongodb://localhost:27017");
@@ -30,7 +31,7 @@ export const Redis = () =>
 	new BunContainerOrchestrator<{
 		client: RedisClientType;
 		kv: RedisKV;
-	}>(Spawner.Redis, "skywatch.persistence.test.redis")
+	}>(Spawner.Redis, "skywatch.api.test.redis")
 		.onStart(async (vars) => {
 			vars.client = createClient();
 			await vars.client.connect();
@@ -41,3 +42,21 @@ export const Redis = () =>
 			await vars.client.flushAll();
 			await vars.client.disconnect();
 		});
+
+export const RabbitMQ = () =>
+	new BunContainerOrchestrator<{
+		client: AMQPClient;
+		channel: AMQPChannel;
+	}>(Spawner.RabbitMQ.bind(null, "mq"), "skywatch.api.test.mq")
+		.onStart(async (vars) => {
+			vars.client = new AMQPClient("amqp://localhost");
+			await vars.client.connect();
+			vars.channel = await vars.client.channel();
+		})
+		.onStop(async (vars) => {
+			await vars.channel.close();
+			await vars.client.close();
+		});
+
+export const MailHog = () =>
+	new BunContainerOrchestrator(Spawner.Mailhog, "skywatch.api.test.mailhog");
