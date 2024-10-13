@@ -3,9 +3,9 @@ export class HTTPError extends Error {
 
 	constructor(
 		public status: number,
-		error: string | Error,
+		public cause: string | Error,
 	) {
-		const err = error instanceof Error ? error : new Error(error);
+		const err = cause instanceof Error ? cause : new Error(cause);
 		super(`Status(${status}): ${err.message}`);
 	}
 }
