@@ -16,10 +16,10 @@
 	"license": "MIT",
 	"type": "module",
 	"devDependencies": {
-		"@jest-mock/express": "^2.1.0",
 		"@types/bun": "latest",
 		"@types/express": "^5.0.0",
 		"date-fns": "^4.1.0",
+		"ky": "^1.7.2",
 		"merge": "^2.1.1"
 	},
 	"peerDependencies": {
@@ -31,7 +31,7 @@
 		"@skywatch/email": "*",
 		"@skywatch/persistence": "*",
 		"@skywatch/weather": "*",
-		"express": "^4.21.0",
+		"express": "^5.0.0",
 		"mongodb": "^6.9.0",
 		"pino": "^9.4.0",
 		"redis": "^4.7.0",
