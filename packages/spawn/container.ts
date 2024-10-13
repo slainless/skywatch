@@ -135,4 +135,16 @@ export namespace Spawner {
 
 		return { containerID: id, container };
 	}
+
+	export async function Mailhog() {
+		const id = crypto.randomUUID();
+		const container = await createProcess(
+			`docker run --rm --name ${id} -p 1025:1025 -p 8025:8025 mailhog/mailhog`,
+			(line) => {
+				return line.indexOf("[SMTP] Binding to address") !== -1;
+			},
+		);
+		await Bun.sleep(100);
+		return { containerID: id, container };
+	}
 }
