@@ -14,7 +14,7 @@ describe(CacheMetadataRepository.name, () => {
 		const result = {
 			etag: hash,
 			expireAt: 100,
-			maxAge: 200,
+			maxAgeMs: 200,
 		} satisfies CacheMetadata;
 
 		await expect(
@@ -28,9 +28,9 @@ describe(CacheMetadataRepository.name, () => {
 		const mockResult = [
 			undefined,
 			undefined,
-			{ etag: "a", expireAt: 100, maxAge: 200 },
+			{ etag: "a", expireAt: 100, maxAgeMs: 200 },
 			undefined,
-			{ etag: "b", expireAt: 200, maxAge: 300 },
+			{ etag: "b", expireAt: 200, maxAgeMs: 300 },
 		] satisfies (CacheMetadata | undefined)[];
 		kv.bulkGet.mockResolvedValueOnce(mockResult);
 

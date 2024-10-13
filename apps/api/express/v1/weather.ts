@@ -8,6 +8,7 @@ import type {
 	CacheMetadataRepository,
 } from "../../repository/cache-metadata";
 import type { WeatherService } from "../../service/weather";
+import { TypeGuardError } from "typia";
 
 export type { WeathersQuery } from "../../guard/artifact/weather-query";
 
@@ -44,7 +45,10 @@ export class WeatherController extends Backend.Component {
 	}
 
 	async getResponseCache(req: Request): Promise<CacheMetadata | null> {
-		const etags = WeatherController.getEtags(req);
+		const header = req.get("If-None-Match");
+		const etags = WeatherController.getEtags(header);
+		if (etags == null || etags.length < 1) return null;
+
 		const metadata = await this.cache.get(etags);
 		if (metadata == null || metadata.expireAt - Date.now() <= 0) return null;
 
@@ -57,7 +61,7 @@ export class WeatherController extends Backend.Component {
 			.set("Etag", cache.etag)
 			.set(
 				"Cache-Control",
-				`max-age=${cache.maxAge}, stale-while-revalidate=${this.options.revalidateWindow}`,
+				`max-age=${Math.round(cache.maxAgeMs / 1000)}, stale-while-revalidate=${this.options.revalidateWindow}`,
 			)
 			.send();
 	}
@@ -74,10 +78,10 @@ export class WeatherController extends Backend.Component {
 			(a, b) => a.sampleTimestamp - b.sampleTimestamp,
 		)[0]!;
 		const expireAt = sample.sampleTimestamp + sample.sampleIntervalMs;
-		const maxAge = expireAt - Date.now();
-		if (maxAge <= 0) return null;
+		const maxAgeMs = expireAt - Date.now();
+		if (maxAgeMs <= 0) return null;
 
-		return this.cache.cache(JSON.stringify(weathers), expireAt, maxAge);
+		return this.cache.cache(JSON.stringify(weathers), expireAt, maxAgeMs);
 	}
 
 	sendResponse(
@@ -90,7 +94,7 @@ export class WeatherController extends Backend.Component {
 				.set("Etag", metadata.etag)
 				.set(
 					"Cache-Control",
-					`max-age=${metadata.maxAge}, stale-while-revalidate=${this.options.revalidateWindow}`,
+					`max-age=${Math.round(metadata.maxAgeMs / 1000)}, stale-while-revalidate=${this.options.revalidateWindow}`,
 				);
 		else
 			res.set(
@@ -105,7 +109,7 @@ export class WeatherController extends Backend.Component {
 		try {
 			const locations = req.query.locations;
 			if (locations == null || typeof locations !== "string")
-				throw new TypeError("Empty location");
+				throw new TypeError("Location query must be a valid JSON string");
 
 			const parsed = JSON.parse(locations);
 			assertWeathersQuery(parsed);
@@ -116,6 +120,11 @@ export class WeatherController extends Backend.Component {
 					: WeatherController.normalizePoint(location),
 			);
 		} catch (e) {
+			if (e instanceof SyntaxError)
+				throw new HTTPError(
+					400,
+					new SyntaxError("Location query is not a valid JSON", { cause: e }),
+				);
 			throw new HTTPError(400, e as Error);
 		}
 	}
@@ -123,13 +132,14 @@ export class WeatherController extends Backend.Component {
 	// format: "<ASCII>" /W"<ASCII>"
 	// or: just "<ASCII>"
 	private static regexpEtag =
-		/(?:W\/)?"([a-zA-Z0-9~`!@#$%^&*_\-+()={\[\]|\\:;'<,>.?/]+)"(?: |$)/g;
-	private static getEtags(req: Request): string[] {
-		const header = req.get("If-None-Match");
+		/(?<= |^)(?:W\/)?"([a-zA-Z0-9~`!@#$%^&*_\-+()={\[\]|\\:;'<,>.?/]+)"(?= |$)/g;
+	static getEtags(header?: string | null): string[] {
 		if (header == null) return [];
 
 		const etags = header.matchAll(WeatherController.regexpEtag);
-		return Array.from(etags).map((etag) => etag[1]!);
+		return Array.from(etags)
+			.map((etag) => etag[1]!)
+			.filter((etag) => etag !== "");
 	}
 
 	private static pointFormatter = new Intl.NumberFormat(undefined, {

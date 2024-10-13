@@ -5,7 +5,7 @@ import type { StringLike } from "bun";
 export interface CacheMetadata {
 	etag: string;
 	expireAt: number;
-	maxAge: number;
+	maxAgeMs: number;
 }
 
 export class CacheMetadataRepository extends Backend.Component {
@@ -21,12 +21,12 @@ export class CacheMetadataRepository extends Backend.Component {
 	async cache(
 		serializable: StringLike,
 		expireAt: number,
-		maxAge: number,
+		maxAgeMs: number,
 	): Promise<CacheMetadata> {
 		const metadata = await CacheMetadataRepository.createMetadata(
 			serializable,
 			expireAt,
-			maxAge,
+			maxAgeMs,
 		);
 		await this.storeMetadata(metadata);
 		return metadata;
@@ -39,13 +39,13 @@ export class CacheMetadataRepository extends Backend.Component {
 	private static async createMetadata(
 		serializable: StringLike,
 		expireAt: number,
-		maxAge: number,
+		maxAgeMs: number,
 	): Promise<CacheMetadata> {
 		const hash = await CacheMetadataRepository.hash(serializable);
 		return {
 			etag: hash,
 			expireAt,
-			maxAge,
+			maxAgeMs,
 		};
 	}
 
