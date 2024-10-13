@@ -76,7 +76,17 @@ export class WeatherRepository extends Backend.Component {
 					[WeatherRepository.serializePoint(point), weathers[index]!] as const,
 			)
 			.filter(([k, v]) => isWeatherData(v));
-		this.persistence.cache().bulkSet(bulk);
+		this.persistence
+			.cache()
+			.bulkSet(bulk)
+			.catch((error) => {
+				this.logger?.error(
+					{ error, bulk },
+					"Fail to store weather data to cache KV",
+				);
+
+				throw error;
+			});
 
 		// regardless of cache bulk set result, what matter is storage bulk set result
 		return this.persistence.storage().bulkSet(bulk);

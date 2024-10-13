@@ -30,10 +30,21 @@ export class WeatherService extends Backend.Component {
 		if (toBeQueried.length < 1)
 			return WeatherService.mapToReturn(query, result);
 
-		const renewed = this.fetchWeathers(toBeQueried).then((weathers) => {
-			this.onNewWeathers(toBeQueried, weathers);
-			return weathers;
-		});
+		const renewed = this.fetchWeathers(toBeQueried)
+			.then((weathers) => {
+				this.onNewWeathers(toBeQueried, weathers).catch((error) => {
+					this.logger?.error(
+						{ error, toBeQueried, weathers },
+						"Fail on new weather hook",
+					);
+					throw error;
+				});
+				return weathers;
+			})
+			.catch((error) => {
+				this.logger?.error({ error, toBeQueried }, "Fail to renew weathers");
+				throw error;
+			});
 		if (hasMissingData === false)
 			return WeatherService.mapToReturn(query, result);
 
@@ -59,10 +70,7 @@ export class WeatherService extends Backend.Component {
 		return result;
 	}
 
-	private async onNewWeathers(
-		query: Point3D[],
-		weathers: Required<WeatherData>[],
-	) {
+	private onNewWeathers(query: Point3D[], weathers: Required<WeatherData>[]) {
 		return Promise.all([
 			this.event.weather().new(query, weathers),
 			this.repository.setWeathers(query, weathers),
