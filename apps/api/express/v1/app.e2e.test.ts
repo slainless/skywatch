@@ -20,13 +20,14 @@ import { addHours, addSeconds, getTime, subHours } from "date-fns";
 import ky from "ky";
 import { createTransport } from "nodemailer";
 import pino from "pino";
-import { CacheMetadataRepository } from "../repository/cache-metadata";
-import { WeatherRepository } from "../repository/weather";
-import { EventService } from "../service/event";
-import { WeatherService } from "../service/weather";
-import { MailHog, Mongo, RabbitMQ, Redis } from "../test/container";
-import { dataWithTimestamp, storageMiss } from "../test/weather";
+import { CacheMetadataRepository } from "../../repository/cache-metadata";
+import { WeatherRepository } from "../../repository/weather";
+import { EventService } from "../../service/event";
+import { WeatherService } from "../../service/weather";
+import { MailHog, Mongo, RabbitMQ, Redis } from "../../test/container";
+import { dataWithTimestamp, storageMiss } from "../../test/weather";
 import { createServer } from "./app";
+import express from "express";
 
 const mq = RabbitMQ().orchestrate();
 const redis = Redis().orchestrate();
@@ -75,7 +76,8 @@ async function orchestrate() {
     logger,
   );
 
-  const app = createServer(service, repo.cache);
+  const app = express();
+  app.use("/v1", createServer(service, repo.cache));
 
   app.listen(PORT);
 
