@@ -2,6 +2,11 @@
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"extends": "@skywatch/config/tsconfig.base.json",
 	"compilerOptions": {
-		"strict": true
+		"strict": true,
+		"baseUrl": ".",
+		"paths": {
+			"#components/*": ["./app/components/*"],
+			"#lib/*": ["./lib/*"]
+		}
 	}
 }
