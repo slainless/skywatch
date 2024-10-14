@@ -14,14 +14,16 @@ import { WeatherService } from "../service/weather";
 import { OpenMeteoProvider } from "@skywatch/weather/openmeteo";
 
 export async function bootstrap(logger: Logger) {
-  logger.info("Creating clients...");
   const config = createConfig();
+  logger.info({ config }, "Starting API server");
+
+  logger.info("Creating clients...");
   const client = {
     metadataRedis: createClient({
       url: config["server.metadata_cache.url"],
     }),
     weatherRedis: createClient({
-      url: config["server.metadata_cache.prefix"],
+      url: config["server.persist.cache.url"],
     }),
     weatherMongo: new MongoClient(config["server.persist.storage.url"]),
     eventMQ: new AMQPClient(config["server.event.mq_url"]),
@@ -70,9 +72,11 @@ export async function bootstrap(logger: Logger) {
   const kv = {
     metadata: new RedisKVWithTTL(client.metadataRedis, {
       ttlSeconds: 1200,
+      keyPrefix: config["server.metadata_cache.prefix"],
     }),
     cache: new RedisKVWithTTL(client.weatherRedis, {
       ttlSeconds: 1200,
+      keyPrefix: config["server.persist.cache.prefix"],
     }),
     storage: new MongoKV(client.weatherMongo, storageCollection, {
       idField: config["server.persist.storage.id_field"],

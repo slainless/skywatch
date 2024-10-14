@@ -7,5 +7,8 @@ const logger = pino({
 });
 const { config, service, repository } = await bootstrap(logger);
 const app = createServer(service, repository.metadata);
-logger.info({ config }, "Starting server");
+logger.info(
+  { port: config["server.port"] },
+  "Ready to accept request. Listening...",
+);
 app.listen(config["server.port"]);
