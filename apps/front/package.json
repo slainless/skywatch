@@ -1,0 +1,27 @@
+{
+  "name": "@skywatch/front",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@remix-run/dev": "^2.13.1",
+    "@types/bun": "latest",
+    "vite": "^5.4.8"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@hono/vite-dev-server": "^0.16.0",
+    "@remix-run/node": "^2.13.1",
+    "@remix-run/react": "^2.13.1",
+    "@remix-run/serve": "^2.13.1",
+    "elysia": "^1.1.22",
+    "express": "^4.21.1",
+    "isbot": "4",
+    "pino": "^9.4.0",
+    "pino-http": "^10.3.0",
+    "pino-pretty": "^11.2.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
