@@ -1,4 +1,4 @@
-import pino from "pino";
+import pino, { type Logger } from "pino";
 import { createConfig } from "../misc/config";
 import { createClient } from "redis";
 import { MongoClient } from "mongodb";
@@ -13,13 +13,8 @@ import { EventService } from "../service/event";
 import { WeatherService } from "../service/weather";
 import { OpenMeteoProvider } from "@skywatch/weather/openmeteo";
 
-export async function bootstrap() {
-  const logger = pino({
-    transport: {
-      target: "pino-pretty",
-    },
-  });
-
+export async function bootstrap(logger: Logger) {
+  logger.info("Creating clients...");
   const config = createConfig();
   const client = {
     metadataRedis: createClient({
