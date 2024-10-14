@@ -131,9 +131,10 @@ namespace util {
     };
 
     if (isMultiple) {
-      const records: Normalized<Base, Using>[] = Array(length).fill({});
+      const records: Normalized<Base, Using>[] = Array(length).fill(0);
       for (const index in records) {
-        const record = records[index];
+        const record = Object.create({});
+        records[index] = record;
         if (record == null) throw new TypeError("Nil record got iterated!");
         mapper(record, +index);
       }
