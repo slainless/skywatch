@@ -1,5 +1,5 @@
 import { MessagePackSerializer, type Serializer } from "@skywatch/serializer";
-import { type RedisClientType, commandOptions } from "redis";
+import { type RedisClientType, commandOptions, type createClient } from "redis";
 import type { KV, KVTuple } from "../../index.js";
 
 export const InvalidKeyTypeError = new TypeError("Key must be a string/number");
@@ -16,7 +16,7 @@ export class RedisKV implements KV {
   protected keyPrefix: string;
 
   constructor(
-    protected client: RedisClientType,
+    protected client: ReturnType<typeof createClient>,
     options?: RedisKVOptions,
   ) {
     this.serializer = options?.serializer ?? MessagePackSerializer.serializer;
@@ -151,7 +151,10 @@ export interface RedisKVWithTTLOptions extends RedisKVOptions {
 export class RedisKVWithTTL extends RedisKV {
   private ttl: number;
 
-  constructor(client: RedisClientType, options: RedisKVWithTTLOptions) {
+  constructor(
+    client: ReturnType<typeof createClient>,
+    options: RedisKVWithTTLOptions,
+  ) {
     const { ttlSeconds, ...rest } = options;
     super(client, rest);
     this.ttl = ttlSeconds;
