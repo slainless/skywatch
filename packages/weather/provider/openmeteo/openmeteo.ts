@@ -5,6 +5,7 @@ import {
   Provider,
   type QueryLocation,
   type QueryOptions,
+  type WeatherData,
   type WeatherResult,
 } from "../../index.js";
 import { mapCurrentSample, mapDailySample, mapHourlySample } from "./conv.js";
@@ -60,6 +61,12 @@ export function buildUrl(
 
     search.set("latitude", latitude.join(","));
     search.set("longitude", longitude.join(","));
+    search.set(
+      "timezone",
+      Array(latitude.length)
+        .fill(Intl.DateTimeFormat().resolvedOptions().timeZone)
+        .join(","),
+    );
   }
 
   if (options.current)
@@ -94,13 +101,15 @@ export function mapResponseToResult(
   result.timezoneAbbr = response.timezone_abbreviation;
 
   {
-    // open meteo sampling rate is 0.09Hz
-    // so we are picking sample date from nearest quarter hour
-    result.sampleIntervalMs = 900e3;
-    const now = new Date();
-    const sampleDate = nearestQuarterHour(now);
-    result.receivedTimestamp = now.getTime();
-    result.sampleTimestamp = sampleDate.getTime();
+    const now = Date.now();
+    const sampleTime = getSampleTime(response);
+    if (sampleTime == null)
+      Object.assign(result, {
+        sampleTimestamp: now,
+        sampleIntervalMs: 0,
+      } satisfies Partial<WeatherData>);
+    else Object.assign(result, sampleTime);
+    result.receivedTimestamp = now;
   }
 
   if ("current" in response) result.current = mapCurrentSample(response);
@@ -108,6 +117,67 @@ export function mapResponseToResult(
   if ("daily" in response) result.daily = mapDailySample(response);
 
   return result;
+}
+
+// TODO: test this function
+export function getSampleTime(
+  response: OpenMeteoResponse,
+): Pick<WeatherData, "sampleTimestamp" | "sampleIntervalMs"> | null {
+  if ("current" in response)
+    return {
+      sampleTimestamp: new Date(response.current.time).getTime(),
+      sampleIntervalMs: response.current.interval * 1000,
+    };
+
+  if ("hourly" in response) {
+    if (response.hourly.time.length < 1) return null;
+
+    const now = Date.now();
+    if (response.hourly.time.length === 1) {
+      const next = new Date(response.hourly.time[0]!).getTime();
+      return {
+        sampleTimestamp: next > now ? now : next,
+        sampleIntervalMs: 3600e3,
+      };
+    }
+
+    let totalDelta = 0;
+    let nearestSample = new Date(response.hourly.time[0]!).getTime()!;
+    let previousSample = nearestSample;
+    for (const current of response.hourly.time.slice(1)) {
+      const currentSample = new Date(current).getTime();
+      totalDelta += Math.abs(currentSample - previousSample);
+      if (currentSample > previousSample && currentSample <= now)
+        nearestSample = currentSample;
+      previousSample = currentSample;
+    }
+
+    return {
+      sampleTimestamp: nearestSample,
+      sampleIntervalMs: Math.round(totalDelta / response.hourly.time.length),
+    };
+  }
+
+  if ("daily" in response) {
+    if (response.daily.time.length < 1) return null;
+    if (response.daily.time.length === 1)
+      return {
+        sampleTimestamp: new Date(response.daily.time[0]!).getTime(),
+        sampleIntervalMs: 86400e3,
+      };
+
+    const now = Date.now();
+    return {
+      sampleTimestamp: response.daily.time.reduce((prev, next) => {
+        const nextTime = new Date(next).getTime();
+        if (nextTime > prev && nextTime <= now) return nextTime;
+        return prev;
+      }, 0),
+      sampleIntervalMs: 86400e3,
+    };
+  }
+
+  return null;
 }
 
 function nearestQuarterHour(date: Date): Date {

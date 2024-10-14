@@ -4,7 +4,7 @@
 	"timezoneAbbr": "WIB",
 	"sampleIntervalMs": 900000,
 	"receivedTimestamp": 1728876956514,
-	"sampleTimestamp": 1728874856514,
+	"sampleTimestamp": 1728124200000,
 	"current": {
 		"data": {
 			"apparentTemperature": 6.4,

@@ -136,7 +136,11 @@ describe(mapResponseToResult.name, () => {
   it("should map barebone response to unified WeatherResult", () => {
     const { hourly: _, daily: __, current: ___, ...response } = exampleResponse;
     const { hourly: $, daily: $$, current: $$$, ...expected } = exampleExpected;
-    expect(mapResponseToResult(response)).toEqual(expected as any);
+    expect(mapResponseToResult(response)).toEqual({
+      ...expected,
+      sampleIntervalMs: 0,
+      sampleTimestamp: receivedDate.getTime(),
+    } as any);
   });
 });
 
