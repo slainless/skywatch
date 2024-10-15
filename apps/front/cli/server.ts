@@ -33,7 +33,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(vite.middlewares);
 }
 
-app.use(pinoHttp({ logger }));
+// app.use(pinoHttp({ logger }));
 app.all("*", createRequestHandler({ build }));
 
 app.listen(PORT, () => {

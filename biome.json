@@ -31,6 +31,9 @@
 				"noNonNullAssertion": {
 					"level": "warn",
 					"fix": "none"
+				},
+				"useSelfClosingElements": {
+					"level": "warn"
 				}
 			}
 		}

@@ -15,7 +15,6 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <h1 className="pl-3">Hello world!</h1>
         <Outlet />
 
         <Scripts />
