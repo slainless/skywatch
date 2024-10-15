@@ -3,5 +3,8 @@ import { defineConfig } from "vite";
 import paths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [remix(), paths({ ignoreConfigErrors: true })],
+  plugins: [
+    process.IS_STORYBOOK ? [] : [remix()],
+    paths({ ignoreConfigErrors: true }),
+  ],
 });
