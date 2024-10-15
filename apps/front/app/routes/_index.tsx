@@ -28,7 +28,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
 export default function Index() {
   const weathers = useLoaderData<typeof loader>();
-  console.log(weathers);
 
   return (
     <div className="grid grid-cols-[320px_auto]">

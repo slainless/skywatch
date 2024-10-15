@@ -17,15 +17,7 @@ export function Sparkline(props: SparklineProps) {
       {...rest}
     >
       <ResponsiveContainer>
-        <AreaChart
-          data={data}
-          margin={{
-            top: 10,
-            right: 30,
-            left: 0,
-            bottom: 0,
-          }}
-        >
+        <AreaChart data={data}>
           <defs>
             <linearGradient id="area-color" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="currentcolor" stopOpacity={0.8} />
