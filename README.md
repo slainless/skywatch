@@ -14,6 +14,10 @@ Some of those are:
 I also need to vent most of my frustration in my lack of artistic sense in developing
 frontend app by doing a project which consist of roughly 70% server-side codes.
 
+## Data flow
+
+Checkout: [./docs/PERSISTENCE_FLOW.md](./docs/PERSISTENCE_FLOW.md)
+
 ## Tech stack
 
 ### Composition
@@ -30,7 +34,7 @@ With some planned optional addition:
   - Terraform
   - Kubernetes
 
-### Platform
+## Platform
 
 I'm using Bun for the server platform and test runner. I don't know whether the frontend
 part can also be ran on top of Bun but we will see.
