@@ -39,7 +39,7 @@ With some planned optional addition:
 I'm using Bun for the server platform and test runner. I don't know whether the frontend
 part can also be ran on top of Bun but we will see.
 
-### Progress
+## Progress
 
 - [x] Weather provider package
   - [x] Implementation
