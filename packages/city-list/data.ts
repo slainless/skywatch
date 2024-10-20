@@ -1,10 +1,11 @@
 import type { Point3D } from "@skywatch/common";
 import { GlobalCity } from "./enum";
 
-const point = (latitude: number, longitude: number): Point3D => ({
-  latitude,
-  longitude,
-});
+const point = <A extends number, B extends number>(latitude: A, longitude: B) =>
+  ({
+    latitude,
+    longitude,
+  }) satisfies Point3D;
 
 const data = <
   A extends string,
