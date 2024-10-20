@@ -36,7 +36,7 @@ export default function Index() {
         <p>Let us take a look at what the sky is up to, shall we?</p>
       </section>
       <main className="p-10">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-4">
           {weathers?.map(([city, weather]) => (
             <WeatherCard city={city} data={weather} key={city.displayName} />
           ))}
