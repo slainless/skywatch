@@ -10,21 +10,45 @@ import {
 } from "./ui/card";
 import type { WeatherData } from "@skywatch/weather";
 import type { Cities } from "@skywatch/city-list";
+import type { AxisDomain } from "recharts/types/util/types";
+import { Flag } from "./flag";
 
 export interface WeatherCardProps {
   city: (typeof Cities)[keyof typeof Cities];
   data: Required<WeatherData>;
+  domainY?: {
+    temperature?: AxisDomain;
+    relativeHumidity?: AxisDomain;
+    windSpeed?: AxisDomain;
+  };
 }
 export function WeatherCard(props: WeatherCardProps) {
-  const { data, city } = props;
+  const { data, city, domainY } = props;
+  const sampleTime = new Date(data.sampleTimestamp);
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{city.displayName}</CardTitle>
-        <CardDescription>Overcast ☁️</CardDescription>
+      <CardHeader className="p-0 h-24 box-content">
+        <div className="p-6 flex">
+          <div>
+            <CardTitle className="flex items-center">
+              <Flag
+                country={city.code}
+                className="h-4 inline-block mr-2 shadow"
+              />
+              {city.displayName}
+            </CardTitle>
+            <CardDescription>Overcast ☁️</CardDescription>
+          </div>
+          <div className="ml-auto">
+            <p>{sampleTime.toLocaleTimeString()}</p>
+            <p className="text-xs text-right">
+              {sampleTime.toLocaleDateString()}
+            </p>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-4 gap-4">
+      <CardContent className="p-0 h-28 flex flex-col justify-end">
+        <div className="grid grid-cols-3">
           <div className="grid grid-cols-subgrid col-span-full">
             <Parameter
               title="Temperature"
@@ -32,14 +56,7 @@ export function WeatherCard(props: WeatherCardProps) {
                 data.current.data.temperature + data.current.units.temperature
               }
             >
-              <Sparkline
-                data={data.hourly.data.map((v) => ({ value: v.temperature }))}
-              />
-              {/* <div className="grid grid-cols-3 opacity-50">
-                <SubParameter title="App." value="80°C" />
-                <SubParameter title="Min." value="80°C" />
-                <SubParameter title="Max." value="80°C" />
-              </div> */}
+              {}
             </Parameter>
             <Parameter
               title="Humidity"
@@ -48,35 +65,33 @@ export function WeatherCard(props: WeatherCardProps) {
                 data.current.units.relativeHumidity
               }
             >
-              <Sparkline
-                data={data.hourly.data.map((v) => ({
-                  value: v.relativeHumidity,
-                }))}
-              />
-            </Parameter>
-            <Parameter
-              title="Precipitation"
-              value={
-                data.current.data.precipitation +
-                data.current.units.precipitation
-              }
-            >
-              <Sparkline
-                data={data.hourly.data.map((v) => ({ value: v.precipitation }))}
-              />
+              {}
             </Parameter>
             <Parameter
               title="Wind Speed"
               value={data.current.data.windSpeed + data.current.units.windSpeed}
             >
-              <Sparkline
-                data={data.hourly.data.map((v) => ({ value: v.windSpeed }))}
-              />
-              {/* <div className="grid grid-cols-2 opacity-50">
-                <SubParameter title="Direction" value="12.4°" />
-                <SubParameter title="Gusts" value="34km/h" />
-              </div> */}
+              {}
             </Parameter>
+          </div>
+          <div className="grid grid-cols-subgrid col-span-full [&>*]:border-r [&>*:last-child]:border-r-0 ">
+            <Sparkline
+              data={data.hourly.data.temperature.map((value) => ({ value }))}
+              className="text-blue-400"
+              domainY={domainY?.temperature ?? [0, 40]}
+            />
+            <Sparkline
+              data={data.hourly.data.relativeHumidity.map((value) => ({
+                value,
+              }))}
+              className="text-blue-400"
+              domainY={domainY?.relativeHumidity ?? [0, 100]}
+            />
+            <Sparkline
+              data={data.hourly.data.windSpeed.map((value) => ({ value }))}
+              className="text-blue-400"
+              domainY={domainY?.windSpeed ?? [0, 20]}
+            />
           </div>
         </div>
       </CardContent>
@@ -93,10 +108,14 @@ interface ParameterProps extends PropsWithChildren {
 }
 function Parameter(props: ParameterProps) {
   return (
-    <div>
-      <div className="text-xs">{props.title}</div>
-      <div>
-        <div className={cn("text-2xl", props.styles?.value)}>{props.value}</div>
+    <div className="px-6 border-r last:border-r-0">
+      <div className="">
+        <div className="text-xs">{props.title}</div>
+        <div>
+          <div className={cn("text-2xl", props.styles?.value)}>
+            {props.value}
+          </div>
+        </div>
       </div>
       <div>{props.children}</div>
     </div>
