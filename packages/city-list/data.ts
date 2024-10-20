@@ -6,11 +6,16 @@ const point = (latitude: number, longitude: number): Point3D => ({
   longitude,
 });
 
-const data = (
-  displayName: string,
-  ISO3166Alpha2: string,
-  tz: string,
-  point: Point3D,
+const data = <
+  A extends string,
+  B extends string,
+  C extends string,
+  D extends Point3D,
+>(
+  displayName: A,
+  ISO3166Alpha2: B,
+  tz: C,
+  point: D,
 ) => ({
   displayName,
   point,
