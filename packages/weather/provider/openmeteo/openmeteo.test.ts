@@ -161,14 +161,13 @@ describe(`${OpenMeteoProvider.name}.${OpenMeteoProvider.prototype.getWeathers.na
       expect("current" in result).toBe(true);
       expect("hourly" in result).toBe(true);
 
-      expect(result.daily.data.length).toBe(
+      expect(result.daily.data.time.length).toBe(
         DEFAULT_FORECAST_DAYS + DEFAULT_PAST_DAYS,
       );
-      expect(result.hourly.data.length).toBe(
+      expect(result.hourly.data.time.length).toBe(
         DEFAULT_FORECAST_HOURS + DEFAULT_PAST_HOURS,
       );
     }
-    // expect(result[0])
   });
 
   it("should return partial WeatherResult spec for partial query options", async () => {
@@ -184,7 +183,7 @@ describe(`${OpenMeteoProvider.name}.${OpenMeteoProvider.prototype.getWeathers.na
       expect("current" in result).toBe(true);
       expect("hourly" in result).toBe(false);
 
-      expect(result.daily.data.length).toBe(
+      expect(result.daily.data.time.length).toBe(
         DEFAULT_FORECAST_DAYS + DEFAULT_PAST_DAYS,
       );
     }
@@ -222,10 +221,10 @@ describe(`${OpenMeteoProvider.name}.${OpenMeteoProvider.prototype.getWeathers.na
       expect("current" in result).toBe(true);
       expect("hourly" in result).toBe(true);
 
-      expect(result.daily.data.length).toBe(
+      expect(result.daily.data.time.length).toBe(
         opts.daily.forecastDays + opts.daily.pastDays,
       );
-      expect(result.hourly.data.length).toBe(
+      expect(result.hourly.data.time.length).toBe(
         opts.hourly.forecastHours + opts.hourly.pastHours,
       );
     }

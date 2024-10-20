@@ -63,48 +63,60 @@ export namespace Samples {
     windGusts: number;
   }
 
-  export interface Hourly extends Omit<Current, "type"> {
+  export interface Hourly {
     type: "hourly";
-    time: string;
-    cloudCoverLow: number;
-    cloudCoverMedium: number;
-    cloudCoverHigh: number;
-    precipitationProbability: number;
-    visibility: number;
+    time: string[];
+    temperature: number[];
+    relativeHumidity: number[];
+    apparentTemperature: number[];
+    precipitation: number[];
+    rain: number[];
+    showers: number[];
+    snowfall: number[];
+    weatherCode: WMOCode.WorldWide[];
+    cloudCoverTotal: number[];
+    windSpeed: number[];
+    windDirection: number[];
+    windGusts: number[];
+    cloudCoverLow: number[];
+    cloudCoverMedium: number[];
+    cloudCoverHigh: number[];
+    precipitationProbability: number[];
+    visibility: number[];
   }
 
   export interface Daily {
     type: "daily";
-    time: string;
-    weatherCode: WMOCode.WorldWide;
-    maxTemperature: number;
-    minTemperature: number;
-    maxApparentTemperature: number;
-    minApparentTemperature: number;
-    sunrise: string;
-    sunset: string;
-    precipitationSum: number;
-    rainSum: number;
-    showersSum: number;
-    snowfallSum: number;
-    precipitationHours: number;
-    precipitationProbabilityMax: number;
-    maximumWindSpeed: number;
-    maximumWindGusts: number;
-    dominantWindDirection: number;
+    time: string[];
+    weatherCode: WMOCode.WorldWide[];
+    maxTemperature: number[];
+    minTemperature: number[];
+    maxApparentTemperature: number[];
+    minApparentTemperature: number[];
+    sunrise: string[];
+    sunset: string[];
+    precipitationSum: number[];
+    rainSum: number[];
+    showersSum: number[];
+    snowfallSum: number[];
+    precipitationHours: number[];
+    precipitationProbabilityMax: number[];
+    maximumWindSpeed: number[];
+    maximumWindGusts: number[];
+    dominantWindDirection: number[];
   }
 }
 export type Samples = Samples.Current | Samples.Daily | Samples.Hourly;
 
 export namespace SamplesWithUnit {
-  interface Entry<T extends Samples, IsMany extends boolean> {
+  interface Entry<T extends Samples> {
     units: { [K in keyof Omit<T, "type">]: string };
-    data: IsMany extends true ? T[] : T;
+    data: T;
   }
 
-  export type Current = Entry<Samples.Current, false>;
-  export type Hourly = Entry<Samples.Hourly, true>;
-  export type Daily = Entry<Samples.Daily, true>;
+  export type Current = Entry<Samples.Current>;
+  export type Hourly = Entry<Samples.Hourly>;
+  export type Daily = Entry<Samples.Daily>;
 }
 
 export interface WeatherData {

@@ -73,10 +73,10 @@ export function mapHourlySample(
   hourly: OpenMeteoResponseComponents.Hourly,
 ): SamplesWithUnit.Hourly {
   return {
-    data: util.normalize(hourly.hourly, hourlyMap).map((record) => ({
-      ...record,
+    data: {
+      ...util.normalize(hourly.hourly, hourlyMap),
       type: "hourly",
-    })),
+    },
     units: util.normalize(hourly.hourly_units, hourlyMap),
   };
 }
@@ -85,10 +85,10 @@ export function mapDailySample(
   daily: OpenMeteoResponseComponents.Daily,
 ): SamplesWithUnit.Daily {
   return {
-    data: util.normalize(daily.daily, dailyMap).map((record) => ({
-      ...record,
+    data: {
+      ...util.normalize(daily.daily, dailyMap),
       type: "daily",
-    })),
+    },
     units: util.normalize(daily.daily_units, dailyMap),
   };
 }
@@ -100,27 +100,15 @@ namespace util {
     M extends Record<keyof T, string | null>,
   > = {
     // [K in keyof T as Exclude<M[K], null>]: T[keyof T] extends Array<infer A> ? A : T[keyof T];
-    [K in keyof M as Exclude<M[K], null>]: T[Extract<K, keyof T>] extends Array<
-      infer A
-    >
-      ? A
-      : T[Extract<K, keyof T>];
+    [K in keyof M as Exclude<M[K], null>]: T[Extract<K, keyof T>];
   };
   export function normalize<
     Base extends Record<string, any>,
     Using extends Record<keyof Base, string | null>,
-  >(
-    base: Base,
-    using: Using,
-  ): Base[keyof Base] extends Array<any>
-    ? Normalized<Base, Using>[]
-    : Normalized<Base, Using> {
+  >(base: Base, using: Using): Normalized<Base, Using> {
     const sampleProperty = base[Object.keys(using)[0] as string];
     if (sampleProperty == null)
       throw new TypeError("Fail to sample base object!");
-
-    const isMultiple = Array.isArray(sampleProperty);
-    const length = isMultiple ? sampleProperty.length : 1;
 
     const mapper = (record: any, index?: number) => {
       for (const [from, to] of Object.entries(using)) {
@@ -129,17 +117,6 @@ namespace util {
         else record[to] = base[from];
       }
     };
-
-    if (isMultiple) {
-      const records: Normalized<Base, Using>[] = Array(length).fill(0);
-      for (const index in records) {
-        const record = Object.create({});
-        records[index] = record;
-        if (record == null) throw new TypeError("Nil record got iterated!");
-        mapper(record, +index);
-      }
-      return records as any;
-    }
 
     const record = Object.create({});
     mapper(record);
