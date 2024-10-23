@@ -1,0 +1,1 @@
+bunx lcov-badge2 -o ./assets/coverage.svg ./test/lcov.info

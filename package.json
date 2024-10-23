@@ -13,8 +13,9 @@
 	"scripts": {
 		"build": "turbo build",
 		"dev": "turbo dev",
-		"test": "turbo test",
+		"test": "bun test --coverage",
 		"codegen": "turbo codegen",
+		"assetgen": "bun ./scripts/assetgen.sh",
 		"flint": "biome check .",
 		"flint:fix": "biome check . --write"
 	},

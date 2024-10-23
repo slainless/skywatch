@@ -1,5 +1,7 @@
 # Skywatch
 
+![coverage-badge](./assets/coverage.svg)
+
 A fullstack weather app side-project.
 
 ## Motivation
@@ -73,3 +75,10 @@ part can also be ran on top of Bun but we will see.
   - [ ] Main page
   - [ ] Unit test
   - [ ] E2E test
+
+## Test
+
+Docker engine is needed to run some of the test.
+
+The test can be ran against the entire codebase with `bun run test` from root directory, which is actually just an alias to `bun test --coverage`, 
+or partially by using bun test runner filter or by running `bun test` directly in selected directory.
