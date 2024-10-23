@@ -36,10 +36,21 @@ With some planned optional addition:
   - Terraform
   - Kubernetes
 
-## Platform
+### Platform
 
 I'm using Bun for the server platform and test runner. I don't know whether the frontend
 part can also be ran on top of Bun but we will see.
+
+### Software
+
+The codebase will heavily on Bun API. Actually, as of now, there is no direct reference or dependency to Bun runtime API
+or Bun modules aside from the unit test part (and the JS runtime of course) but it will be used later when needed.
+
+The web framework used right now is Express but I planned to implement another one with Elysia or Hono (most likely with
+Elysia.)
+
+The front is built on top of Remix, Express and Vite. Same with web framework, I also planned to implement the 
+front-end server with Elysia/Hono later on.
 
 ## Progress
 
