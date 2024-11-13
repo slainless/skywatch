@@ -2,19 +2,7 @@
 
 ![coverage-badge](./assets/coverage.svg)
 
-A fullstack weather app side-project.
-
-## Motivation
-
-Recently, I'm trying to gain in-depth knowledge in the area I'm lacking.
-Some of those are: 
-  - Microservices
-  - Software architecure
-  - Cloud infrastructure and IaC
-  - Monorepo setup
-
-I also need to vent most of my frustration in my lack of artistic sense in developing
-frontend app by doing a project which consist of roughly 70% server-side codes.
+A simple fullstack weather app side-project.
 
 ## Data flow
 
@@ -24,17 +12,12 @@ Checkout: [./docs/PERSISTENCE_FLOW.md](./docs/PERSISTENCE_FLOW.md)
 
 ### Composition
 
-The project depends on:
   - Redis
   - MongoDB
   - Turborepo
   - RabbitMQ
   - Docker
   - Bun
-
-With some planned optional addition:
-  - Terraform
-  - Kubernetes
 
 ### Platform
 
@@ -43,7 +26,7 @@ part can also be ran on top of Bun but we will see.
 
 ### Software
 
-The codebase will heavily on Bun API. Actually, as of now, there is no direct reference or dependency to Bun runtime API
+The codebase will rely heavily on Bun API. Actually, as of now, there is no direct reference or dependency to Bun runtime API
 or Bun modules aside from the unit test part (and the JS runtime of course) but it will be used later when needed.
 
 The web framework used right now is Express but I planned to implement another one with Elysia or Hono (most likely with
